@@ -42,23 +42,24 @@
         @media (orientation: portrait) { #orientation-warning { display: flex; } }
 
         /* ==========================================
-           內部 UI 元件緊湊微調
+           內部 UI 元件：胖手指防護微調
            ========================================== */
         .checkbox-group { display: flex; flex-direction: column; gap: 4px; background: #f8fafc; padding: 8px 10px; border-radius: 8px; border: 1px solid #e2e8f0; }
         .checkbox-group label { font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; color: #475569; margin: 0; }
         .checkbox-group input[type="checkbox"] { width: 15px; height: 15px; cursor: pointer; }
         
         .slider-group { display: flex; flex-direction: column; gap: 0px; padding: 0 4px; }
-        .slider-group input[type="range"] { width: 100%; margin: 6px 0 2px 0; cursor: pointer; height: 8px;}
+        /* 增加上下 margin 防止誤觸 */
+        .slider-group input[type="range"] { width: 100%; margin: 12px 0 8px 0; cursor: pointer; height: 8px;}
         .ticks { display: flex; justify-content: space-between; font-size: 10px; color: #94a3b8; padding: 0 2px; font-weight: 600; }
         
         /* ==========================================
-           中央燒杯繪製區
+           中央燒杯繪製區 (高度拉伸版 480px)
            ========================================== */
         #beaker-wrapper { 
             position: relative; 
             width: 340px; 
-            height: 420px; 
+            height: 480px; 
             transform-origin: center bottom;
             transition: transform 0.3s ease;
         }
@@ -77,7 +78,6 @@
            ========================================== */
         .particle { position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: white; user-select: none; text-align: center; white-space: nowrap; box-shadow: 1px 2px 6px rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.3); }
         
-        /* 酵素：黃色光暈外框 */
         .enzyme { 
             width: 50px; height: 50px; border-radius: 14px; 
             border: 2px solid #fef08a; 
@@ -88,9 +88,8 @@
         
         .substrate { width: 45px; height: 45px; z-index: 3; }
         
-        /* 產物：透過 ::before 進行模糊，本體背景透明以保持文字絕對清晰 */
+        /* 產物解綁統一尺寸，由各自 class 決定大小 */
         .product { 
-            width: 28px; height: 28px; 
             z-index: 2; 
             background: transparent !important; 
             border: none;
@@ -105,6 +104,11 @@
             filter: blur(1.5px);
             z-index: -1;
         }
+
+        /* 產物尺寸獨立設定：分解較小，合成(尿素)巨大化 */
+        .prod-sugar { width: 28px; height: 28px; }
+        .prod-aa { width: 28px; height: 28px; }
+        .prod-urea { width: 55px; height: 55px; font-size: 13px; }
         
         /* 色彩對應系統 */
         .sub-starch { background: #EF4444; }     
@@ -164,22 +168,22 @@
                 </div>
             </div>
 
-            <div class="flex flex-col gap-3 mt-1 border-t pt-3 flex-none">
+            <div class="flex flex-col gap-6 mt-1 border-t pt-5 flex-none">
                 <div class="slider-group">
                     <label class="text-[13px] font-bold text-slate-600 mb-0">溫度: <b class="text-rose-600"><span id="tempVal">37</span> °C</b></label>
                     <input type="range" id="temp" min="0" max="60" value="37" class="accent-rose-500">
-                    <div class="ticks -mt-1"><span>0°C</span><span>15°C</span><span>30°C</span><span>45°C</span><span>60°C</span></div>
+                    <div class="ticks mt-1"><span>0°C</span><span>15°C</span><span>30°C</span><span>45°C</span><span>60°C</span></div>
                 </div>
                 
                 <div class="slider-group">
                     <label class="text-[13px] font-bold text-slate-600 mb-0">酸鹼值: <b class="text-blue-600">pH <span id="phVal">7.0</span></b></label>
                     <input type="range" id="ph" min="0" max="14" step="0.1" value="7" class="accent-blue-500">
-                    <div class="ticks -mt-1"><span>0(酸)</span><span>7(中)</span><span>14(鹼)</span></div>
+                    <div class="ticks mt-1"><span>0(酸)</span><span>7(中)</span><span>14(鹼)</span></div>
                 </div>
             </div>
         </div>
 
-        <div class="flex-1 flex flex-col items-center justify-start bg-slate-200/50 rounded-2xl shadow-inner border border-slate-200 relative overflow-hidden p-4 pt-6">
+        <div class="flex-1 flex flex-col items-center justify-start bg-slate-200/50 rounded-2xl shadow-inner border border-slate-200 relative overflow-hidden p-4 pt-4">
             
             <button id="btnPlay" class="mb-4 w-64 py-2.5 bg-emerald-500 text-white font-black rounded-full hover:bg-emerald-600 transition shadow-lg tracking-widest text-base border-[3px] border-white z-10 flex-none">
                 ▶ 開始反應
@@ -254,7 +258,8 @@
 
         const beaker = document.getElementById('beaker');
         const beakerWrapper = document.getElementById('beaker-wrapper');
-        const bWidth = 340, bHeight = 420;
+        // 更新座標軸限制：適應新的 480px 高度
+        const bWidth = 340, bHeight = 480;
         let particles = [];
         let playing = false, time = 0, active = true;
         const maxTime = 400;
@@ -320,7 +325,7 @@
             particles.push({ el, type, name, x, y, size, vx: (Math.random()-0.5)*2, vy: (Math.random()-0.5)*2, cooldown: 0 });
         }
 
-        // 關閉原生 Legend 與 Title，節省最高垂直空間
+        // 修改 layout.padding.bottom 解決數字被裁切問題
         const createMultiChart = (id, datasetsConfig, maxVal) => new Chart(document.getElementById(id).getContext('2d'), {
             type: 'line',
             data: {
@@ -334,7 +339,7 @@
                     x: { ticks: { maxTicksLimit: 11, callback: v => (v / 20).toFixed(0), font: { size: 9 }, padding: 0 }, title: { display: false } }, 
                     y: { min: 0, max: maxVal, ticks: { font: { size: 9 }, padding: 2 }, border: { display: false } } 
                 },
-                layout: { padding: { left: -5, right: 0, top: 5, bottom: -5 } }
+                layout: { padding: { left: -5, right: 0, top: 5, bottom: 5 } } 
             }
         });
 
@@ -345,7 +350,6 @@
         function updateChartVisibility() {
             let activeSelectors = Array.from(document.querySelectorAll('.setup-cb:checked')).map(cb => cb.getAttribute('data-name'));
             
-            // 自訂 HTML 圖例刪除線邏輯
             document.querySelectorAll('.leg-item').forEach(el => {
                 let id = el.getAttribute('data-id');
                 let isVisible = false;
@@ -461,7 +465,10 @@
             el.innerText = label;
             el.style.left = x + 'px'; el.style.top = y + 'px';
             beaker.appendChild(el);
-            particles.push({ el, type: 'product', name, x, y, size: 28, vx: (Math.random()-0.5)*3, vy: (Math.random()-0.5)*3, cooldown: 0 });
+            
+            // 獨立指派產物碰撞邊界尺寸 (尿素 55px，其餘 28px)
+            let pSize = (name === 'urea') ? 55 : 28;
+            particles.push({ el, type: 'product', name, x, y, size: pSize, vx: (Math.random()-0.5)*3, vy: (Math.random()-0.5)*3, cooldown: 0 });
         }
 
         function tick() {
@@ -528,11 +535,17 @@
                 cS.update(); cP.update(); cA.update();
                 time++;
                 
+                // 結束判斷與按鈕動態賦能 (無縫切換重置功能)
                 if(time >= maxTime) {
                     playing = false;
-                    document.getElementById('btnPlay').innerText = "🔄 實驗結束";
-                    document.getElementById('btnPlay').disabled = true;
-                    document.getElementById('btnPlay').classList.add('opacity-50', 'cursor-not-allowed');
+                    let btn = document.getElementById('btnPlay');
+                    btn.innerText = "🔄 重置實驗";
+                    // 移除原有的播放/暫停顏色與 Hover 特效
+                    btn.classList.remove('bg-emerald-500', 'bg-amber-500', 'hover:bg-emerald-600', 'hover:bg-amber-600');
+                    // 賦予全新的藍色重置按鈕外觀與心跳特效
+                    btn.className = "mb-4 w-64 py-2.5 bg-blue-500 text-white font-black rounded-full hover:bg-blue-600 transition shadow-lg tracking-widest text-base border-[3px] border-white z-10 flex-none animate-pulse";
+                    // 覆寫點擊行為
+                    btn.onclick = () => location.reload();
                 }
             }
         }
