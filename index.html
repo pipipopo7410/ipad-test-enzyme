@@ -38,21 +38,19 @@
             color: #2E7D32;
         }
 
-        /* 橫向防呆機制 */
         #orientation-warning { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: #0f172a; color: white; z-index: 9999; flex-direction: column; justify-content: center; align-items: center; font-size: 1.5em; text-align: center; padding: 20px; box-sizing: border-box; }
         @media (orientation: portrait) { #orientation-warning { display: flex; } }
 
         /* ==========================================
-           內部 UI 元件微調
+           內部 UI 元件緊湊微調
            ========================================== */
-        .checkbox-group { display: flex; flex-direction: column; gap: 6px; background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0; }
-        .checkbox-group label { font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; color: #475569; }
-        .checkbox-group input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
+        .checkbox-group { display: flex; flex-direction: column; gap: 4px; background: #f8fafc; padding: 8px 10px; border-radius: 8px; border: 1px solid #e2e8f0; }
+        .checkbox-group label { font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; color: #475569; margin: 0; }
+        .checkbox-group input[type="checkbox"] { width: 15px; height: 15px; cursor: pointer; }
         
-        .slider-group { display: flex; flex-direction: column; gap: 4px; padding: 0 4px; }
-        /* 修正 1：移除寫死的 height 解決 Safari pH 卷軸消失問題，改用 margin 撐開空間 */
-        .slider-group input[type="range"] { width: 100%; margin: 8px 0; cursor: pointer; }
-        .ticks { display: flex; justify-content: space-between; font-size: 11px; color: #94a3b8; padding: 0 2px; font-weight: 600; }
+        .slider-group { display: flex; flex-direction: column; gap: 0px; padding: 0 4px; }
+        .slider-group input[type="range"] { width: 100%; margin: 6px 0 2px 0; cursor: pointer; height: 8px;}
+        .ticks { display: flex; justify-content: space-between; font-size: 10px; color: #94a3b8; padding: 0 2px; font-weight: 600; }
         
         /* ==========================================
            中央燒杯繪製區
@@ -61,11 +59,11 @@
             position: relative; 
             width: 340px; 
             height: 420px; 
-            transform-origin: center center;
+            transform-origin: center bottom;
             transition: transform 0.3s ease;
         }
-        @media (max-height: 800px) { #beaker-wrapper { transform: scale(0.9); } }
-        @media (max-height: 650px) { #beaker-wrapper { transform: scale(0.75); } }
+        @media (max-height: 800px) { #beaker-wrapper { transform: scale(0.85); } }
+        @media (max-height: 650px) { #beaker-wrapper { transform: scale(0.7); } }
 
         #beaker { width: 100%; height: 100%; border: 6px solid #475569; border-top: none; border-radius: 0 0 24px 24px; background: #f7fbe8; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.1), inset -12px 0 24px rgba(255,255,255,0.7); transition: background-color 0.5s ease; overflow: hidden; }
         
@@ -79,10 +77,10 @@
            ========================================== */
         .particle { position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: white; user-select: none; text-align: center; white-space: nowrap; box-shadow: 1px 2px 6px rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.3); }
         
-        /* 視覺優化 1：酵素加入顯眼的黃色光暈外框 */
+        /* 酵素：黃色光暈外框 */
         .enzyme { 
             width: 50px; height: 50px; border-radius: 14px; 
-            border: 2px solid #fef08a; /* 亮黃邊框 */
+            border: 2px solid #fef08a; 
             box-shadow: 0 0 14px 4px rgba(250, 204, 21, 0.8), inset 0 0 6px rgba(255,255,255,0.4); 
             transition: background 0.4s, transform 0.2s; 
             z-index: 4; 
@@ -90,28 +88,36 @@
         
         .substrate { width: 45px; height: 45px; z-index: 3; }
         
-        /* 視覺優化 2：生成物變得更小、半透明、柔邊化 */
+        /* 產物：透過 ::before 進行模糊，本體背景透明以保持文字絕對清晰 */
         .product { 
             width: 28px; height: 28px; 
-            opacity: 0.8; 
-            filter: blur(1px); 
             z-index: 2; 
+            background: transparent !important; 
+            border: none;
+            text-shadow: 0px 1px 2px rgba(0,0,0,0.8);
+        }
+        .product::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            opacity: 0.7;
+            filter: blur(1.5px);
+            z-index: -1;
         }
         
-        /* 澱粉系統 */
+        /* 色彩對應系統 */
         .sub-starch { background: #EF4444; }     
         .enz-saliva { background: #15803D; }     
-        .prod-sugar { background: #22C55E; }     
+        .prod-sugar::before { background: #22C55E; }     
 
-        /* 蛋白質系統 */
         .sub-protein { background: #3B82F6; }    
         .enz-pepsin { background: #6B21A8; }     
-        .prod-aa { background: #A855F7; }        
+        .prod-aa::before { background: #A855F7; }        
 
-        /* 氨系統 */
         .sub-ammonia { background: #06B6D4; }    
         .enz-liver { background: #115E59; }      
-        .prod-urea { background: #14B8A6; }      
+        .prod-urea::before { background: #14B8A6; }      
     </style>
 </head>
 
@@ -130,59 +136,56 @@
         <button class="nav-tab-btn">排氨</button>
     </div>
 
-    <header class="flex-none h-[60px] px-6 bg-white border-b border-slate-200 shadow-sm flex justify-between items-center z-10">
+    <header class="flex-none h-[56px] px-6 bg-white border-b border-slate-200 shadow-sm flex justify-between items-center z-10">
         <h1 class="text-xl font-bold text-slate-800">🧪 酵素反應高效複習儀</h1>
-        <button onclick="location.reload()" class="border border-slate-300 px-4 py-2 rounded-lg text-sm font-bold text-slate-600 hover:bg-slate-100 transition">重置實驗</button>
+        <button onclick="location.reload()" class="border border-slate-300 px-4 py-1.5 rounded-lg text-sm font-bold text-slate-600 hover:bg-slate-100 transition">重置實驗</button>
     </header>
 
     <main class="flex-1 flex flex-row w-full max-w-[1600px] mx-auto gap-4 p-4 min-h-0">
         
-        <div class="w-[280px] flex-none bg-white p-5 flex flex-col gap-4 rounded-2xl shadow-xl border border-slate-100 overflow-y-auto pb-8">
-            <h3 class="font-black text-lg text-slate-700 border-b pb-2">參數控制台</h3>
+        <div class="w-[260px] flex-none bg-white p-4 flex flex-col gap-3 rounded-2xl shadow-xl border border-slate-100">
+            <h3 class="font-black text-base text-slate-700 border-b pb-1.5 flex-none">參數控制台</h3>
             
-            <button id="btnPlay" class="w-full py-3 bg-emerald-500 text-white font-black rounded-xl hover:bg-emerald-600 transition shadow-md tracking-widest text-base flex-none">
-                開始 / 暫停
-            </button>
-            
-            <div class="flex flex-col gap-3 mt-2 flex-none">
-                <h4 class="font-bold text-sm text-slate-600">1. 貨架選擇 <span class="text-xs text-rose-500 font-normal">(最多4個)</span></h4>
+            <div class="flex flex-col gap-2.5 flex-none">
+                <h4 class="font-bold text-[13px] text-slate-600">1. 貨架選擇 <span class="text-[10px] text-rose-500 font-normal">(最多4個)</span></h4>
                 
                 <div class="checkbox-group shadow-inner">
-                    <label class="text-rose-600 border-b border-rose-100 pb-1 mb-1">【選擇受質】</label>
+                    <label class="text-rose-600 border-b border-rose-100 pb-1 mb-0.5 text-xs">【選擇受質】</label>
                     <label><input type="checkbox" class="setup-cb" data-type="substrate" data-name="starch" data-label="澱粉"> 澱粉</label>
                     <label><input type="checkbox" class="setup-cb" data-type="substrate" data-name="protein" data-label="蛋白質"> 蛋白質</label>
                     <label><input type="checkbox" class="setup-cb" data-type="substrate" data-name="ammonia" data-label="氨"> 氨 (含氮廢物)</label>
                 </div>
                 
                 <div class="checkbox-group shadow-inner">
-                    <label class="text-blue-600 border-b border-blue-100 pb-1 mb-1">【選擇酵素】</label>
+                    <label class="text-blue-600 border-b border-blue-100 pb-1 mb-0.5 text-xs">【選擇酵素】</label>
                     <label><input type="checkbox" class="setup-cb" data-type="enzyme" data-name="saliva" data-label="唾液"> 唾液澱粉酶</label>
                     <label><input type="checkbox" class="setup-cb" data-type="enzyme" data-name="pepsin" data-label="胃液"> 胃蛋白酶</label>
                     <label><input type="checkbox" class="setup-cb" data-type="enzyme" data-name="liver" data-label="肝臟酵素"> 肝臟酵素</label>
                 </div>
             </div>
 
-            <div class="flex flex-col gap-4 mt-2 border-t pt-4 flex-none">
+            <div class="flex flex-col gap-3 mt-1 border-t pt-3 flex-none">
                 <div class="slider-group">
-                    <label class="text-sm font-bold text-slate-600 mb-1">溫度: <b class="text-rose-600"><span id="tempVal">37</span> °C</b></label>
+                    <label class="text-[13px] font-bold text-slate-600 mb-0">溫度: <b class="text-rose-600"><span id="tempVal">37</span> °C</b></label>
                     <input type="range" id="temp" min="0" max="60" value="37" class="accent-rose-500">
-                    <div class="ticks"><span>0°C</span><span>15°C</span><span>30°C</span><span>45°C</span><span>60°C</span></div>
+                    <div class="ticks -mt-1"><span>0°C</span><span>15°C</span><span>30°C</span><span>45°C</span><span>60°C</span></div>
                 </div>
                 
                 <div class="slider-group">
-                    <label class="text-sm font-bold text-slate-600 mb-1">酸鹼值: <b class="text-blue-600">pH <span id="phVal">7.0</span></b></label>
+                    <label class="text-[13px] font-bold text-slate-600 mb-0">酸鹼值: <b class="text-blue-600">pH <span id="phVal">7.0</span></b></label>
                     <input type="range" id="ph" min="0" max="14" step="0.1" value="7" class="accent-blue-500">
-                    <div class="ticks"><span>0 (酸)</span><span>7 (中)</span><span>14 (鹼)</span></div>
+                    <div class="ticks -mt-1"><span>0(酸)</span><span>7(中)</span><span>14(鹼)</span></div>
                 </div>
-            </div>
-            
-            <div id="status" class="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs font-bold text-amber-700 leading-relaxed shadow-sm flex-none">
-                狀態: 請先勾選貨架物件後點擊開始
             </div>
         </div>
 
-        <div class="flex-1 flex items-center justify-center bg-slate-200/50 rounded-2xl shadow-inner border border-slate-200 relative overflow-hidden">
-            <div id="beaker-wrapper">
+        <div class="flex-1 flex flex-col items-center justify-start bg-slate-200/50 rounded-2xl shadow-inner border border-slate-200 relative overflow-hidden p-4 pt-6">
+            
+            <button id="btnPlay" class="mb-4 w-64 py-2.5 bg-emerald-500 text-white font-black rounded-full hover:bg-emerald-600 transition shadow-lg tracking-widest text-base border-[3px] border-white z-10 flex-none">
+                ▶ 開始反應
+            </button>
+
+            <div id="beaker-wrapper" class="flex-none mt-2">
                 <div id="beaker"></div>
                 <div class="beaker-lines">
                     <div>400 ml<div class="line-mark"></div></div>
@@ -193,16 +196,53 @@
             </div>
         </div>
 
-        <div class="w-[32%] min-w-[320px] flex-none bg-white p-4 flex flex-col gap-3 rounded-2xl shadow-xl border border-slate-100">
-            <div class="flex-1 relative w-full min-h-0 bg-slate-50 rounded-xl p-2 border border-slate-100 shadow-inner">
-                <canvas id="chartS"></canvas>
+        <div class="w-[32%] min-w-[320px] flex-none bg-white p-3.5 flex flex-col gap-2.5 rounded-2xl shadow-xl border border-slate-100">
+            
+            <div class="flex-1 flex flex-col w-full min-h-0 bg-slate-50 rounded-xl p-2 border border-slate-100 shadow-inner">
+                <div class="flex justify-between items-center px-1 pb-1 border-b border-slate-200 mb-1 flex-none">
+                    <span class="text-[12px] font-black text-slate-700">📦 受質數量 (個)</span>
+                    <div class="flex gap-1.5 text-[10px] font-bold">
+                        <span class="leg-item transition-all" data-id="starch" style="color:#EF4444">■ 澱粉</span>
+                        <span class="leg-item transition-all" data-id="protein" style="color:#3B82F6">■ 蛋白質</span>
+                        <span class="leg-item transition-all" data-id="ammonia" style="color:#06B6D4">■ 氨</span>
+                    </div>
+                </div>
+                <div class="flex-1 relative w-full min-h-0">
+                    <canvas id="chartS"></canvas>
+                    <span class="absolute bottom-[2px] right-[2px] text-[9px] text-slate-400 font-bold bg-slate-50 px-1">時間(秒)</span>
+                </div>
             </div>
-            <div class="flex-1 relative w-full min-h-0 bg-slate-50 rounded-xl p-2 border border-slate-100 shadow-inner">
-                <canvas id="chartP"></canvas>
+
+            <div class="flex-1 flex flex-col w-full min-h-0 bg-slate-50 rounded-xl p-2 border border-slate-100 shadow-inner">
+                <div class="flex justify-between items-center px-1 pb-1 border-b border-slate-200 mb-1 flex-none">
+                    <span class="text-[12px] font-black text-slate-700">✨ 產物數量 (個)</span>
+                    <div class="flex gap-1.5 text-[10px] font-bold">
+                        <span class="leg-item transition-all" data-id="sugar" style="color:#22C55E">■ 多醣</span>
+                        <span class="leg-item transition-all" data-id="aa" style="color:#A855F7">■ 胺基酸</span>
+                        <span class="leg-item transition-all" data-id="urea" style="color:#14B8A6">■ 尿素</span>
+                    </div>
+                </div>
+                <div class="flex-1 relative w-full min-h-0">
+                    <canvas id="chartP"></canvas>
+                    <span class="absolute bottom-[2px] right-[2px] text-[9px] text-slate-400 font-bold bg-slate-50 px-1">時間(秒)</span>
+                </div>
             </div>
-            <div class="flex-1 relative w-full min-h-0 bg-slate-50 rounded-xl p-2 border border-slate-100 shadow-inner">
-                <canvas id="chartA"></canvas>
+
+            <div class="flex-1 flex flex-col w-full min-h-0 bg-slate-50 rounded-xl p-2 border border-slate-100 shadow-inner">
+                <div class="flex justify-between items-center px-1 pb-1 border-b border-slate-200 mb-1 flex-none">
+                    <span class="text-[12px] font-black text-slate-700">⚡ 活性百分比 (%)</span>
+                    <div class="flex gap-1.5 text-[10px] font-bold">
+                        <span class="leg-item transition-all" data-id="saliva" style="color:#15803D">■ 唾液</span>
+                        <span class="leg-item transition-all" data-id="pepsin" style="color:#6B21A8">■ 胃液</span>
+                        <span class="leg-item transition-all" data-id="liver" style="color:#115E59">■ 肝酶</span>
+                    </div>
+                </div>
+                <div class="flex-1 relative w-full min-h-0">
+                    <canvas id="chartA"></canvas>
+                    <span class="absolute bottom-[2px] right-[2px] text-[9px] text-slate-400 font-bold bg-slate-50 px-1">時間(秒)</span>
+                </div>
             </div>
+
         </div>
 
     </main>
@@ -262,6 +302,7 @@
                     spawnParticle(type, name, label);
                 }
             });
+            updateChartVisibility();
         }
 
         function spawnParticle(type, name, label) {
@@ -279,7 +320,8 @@
             particles.push({ el, type, name, x, y, size, vx: (Math.random()-0.5)*2, vy: (Math.random()-0.5)*2, cooldown: 0 });
         }
 
-        const createMultiChart = (id, title, datasetsConfig, maxVal) => new Chart(document.getElementById(id).getContext('2d'), {
+        // 關閉原生 Legend 與 Title，節省最高垂直空間
+        const createMultiChart = (id, datasetsConfig, maxVal) => new Chart(document.getElementById(id).getContext('2d'), {
             type: 'line',
             data: {
                 labels: Array.from({length: maxTime}, (_, i) => i),
@@ -287,24 +329,44 @@
             },
             options: {
                 responsive: true, maintainAspectRatio: false, animation: false,
-                plugins: { 
-                    legend: { display: true, labels: { boxWidth: 12, font: { size: 11, family: "'Segoe UI', sans-serif" } }, position: 'top' },
-                    title: { display: true, text: title, font: { size: 13, weight: 'bold' }, padding: { top: 2, bottom: 8 } }
-                },
+                plugins: { legend: { display: false }, title: { display: false } },
                 scales: { 
-                    x: { ticks: { maxTicksLimit: 11, callback: v => (v / 20).toFixed(0) }, title: { display: true, text: '時間 (秒)', font: { size: 10 } } }, 
-                    y: { min: 0, max: maxVal, ticks: { font: { size: 10 } } } 
+                    x: { ticks: { maxTicksLimit: 11, callback: v => (v / 20).toFixed(0), font: { size: 9 }, padding: 0 }, title: { display: false } }, 
+                    y: { min: 0, max: maxVal, ticks: { font: { size: 9 }, padding: 2 }, border: { display: false } } 
                 },
-                layout: { padding: { left: -5, right: 10, top: -5, bottom: -5 } }
+                layout: { padding: { left: -5, right: 0, top: 5, bottom: -5 } }
             }
         });
 
-        const cS = createMultiChart('chartS', '📦 受質數量 (個)', [{label:'澱粉', color:'#EF4444'}, {label:'蛋白質', color:'#3B82F6'}, {label:'氨', color:'#06B6D4'}], 1000);
-        const cP = createMultiChart('chartP', '✨ 產物數量 (個)', [{label:'多醣', color:'#22C55E'}, {label:'胺基酸', color:'#A855F7'}, {label:'尿素', color:'#14B8A6'}], 2000);
-        const cA = createMultiChart('chartA', '⚡ 活性百分比 (%)', [{label:'唾液活性', color:'#15803D'}, {label:'胃液活性', color:'#6B21A8'}, {label:'肝酶活性', color:'#115E59'}], 120);
+        const cS = createMultiChart('chartS', [{label:'澱粉', color:'#EF4444'}, {label:'蛋白質', color:'#3B82F6'}, {label:'氨', color:'#06B6D4'}], 1000);
+        const cP = createMultiChart('chartP', [{label:'多醣', color:'#22C55E'}, {label:'胺基酸', color:'#A855F7'}, {label:'尿素', color:'#14B8A6'}], 2000);
+        const cA = createMultiChart('chartA', [{label:'唾液活性', color:'#15803D'}, {label:'胃液活性', color:'#6B21A8'}, {label:'肝酶活性', color:'#115E59'}], 120);
 
         function updateChartVisibility() {
             let activeSelectors = Array.from(document.querySelectorAll('.setup-cb:checked')).map(cb => cb.getAttribute('data-name'));
+            
+            // 自訂 HTML 圖例刪除線邏輯
+            document.querySelectorAll('.leg-item').forEach(el => {
+                let id = el.getAttribute('data-id');
+                let isVisible = false;
+                
+                if (['starch', 'protein', 'ammonia', 'saliva', 'pepsin', 'liver'].includes(id)) {
+                    isVisible = activeSelectors.includes(id);
+                } else if (id === 'sugar') {
+                    isVisible = activeSelectors.includes('starch') || activeSelectors.includes('saliva');
+                } else if (id === 'aa') {
+                    isVisible = activeSelectors.includes('protein') || activeSelectors.includes('pepsin');
+                } else if (id === 'urea') {
+                    isVisible = activeSelectors.includes('ammonia') || activeSelectors.includes('liver');
+                }
+                
+                if (isVisible) {
+                    el.classList.remove('line-through', 'opacity-30', 'grayscale');
+                } else {
+                    el.classList.add('line-through', 'opacity-30', 'grayscale');
+                }
+            });
+
             cS.data.datasets[0].hidden = !activeSelectors.includes('starch');
             cS.data.datasets[1].hidden = !activeSelectors.includes('protein');
             cS.data.datasets[2].hidden = !activeSelectors.includes('ammonia');
@@ -337,21 +399,21 @@
 
         document.getElementById('temp').oninput = updateUIFeedback;
         document.getElementById('ph').oninput = updateUIFeedback;
+        
         document.getElementById('btnPlay').onclick = () => {
             let checkedCount = document.querySelectorAll('.setup-cb:checked').length;
             if(checkedCount === 0) { alert("請至少勾選一項受質或酵素再開始！"); return; }
             playing = !playing;
             if (playing) {
                 updateChartVisibility();
-                document.getElementById('btnPlay').innerText = "⏸️ 暫停反應";
+                document.getElementById('btnPlay').innerText = "⏸ 暫停反應";
                 document.getElementById('btnPlay').classList.replace('bg-emerald-500', 'bg-amber-500');
                 document.getElementById('btnPlay').classList.replace('hover:bg-emerald-600', 'hover:bg-amber-600');
             } else {
-                document.getElementById('btnPlay').innerText = "▶️ 繼續反應";
+                document.getElementById('btnPlay').innerText = "▶ 繼續反應";
                 document.getElementById('btnPlay').classList.replace('bg-amber-500', 'bg-emerald-500');
                 document.getElementById('btnPlay').classList.replace('hover:bg-amber-600', 'hover:bg-emerald-600');
             }
-            document.getElementById('status').innerHTML = playing ? "狀態: <span class='text-emerald-600'>▶ 反應進行中...</span>" : "狀態: <span class='text-amber-600'>⏸ 暫停中</span>";
         };
 
         function moveParticles() {
@@ -399,7 +461,6 @@
             el.innerText = label;
             el.style.left = x + 'px'; el.style.top = y + 'px';
             beaker.appendChild(el);
-            // 修正產物的尺寸變數對應 CSS，原 35 改為 28
             particles.push({ el, type: 'product', name, x, y, size: 28, vx: (Math.random()-0.5)*3, vy: (Math.random()-0.5)*3, cooldown: 0 });
         }
 
@@ -408,23 +469,24 @@
                 let t = parseInt(document.getElementById('temp').value);
                 let p = parseFloat(document.getElementById('ph').value);
 
-                // 學理微調：臨界點延後至 50°C
                 if (t >= 50) {
                     ['saliva', 'pepsin', 'liver'].forEach(key => lockStates[key].denatured = true);
-                    document.querySelectorAll('.enzyme').forEach(e => e.style.backgroundColor = '#94a3b8'); 
+                    document.querySelectorAll('.enzyme').forEach(e => {
+                        e.style.backgroundColor = '#94a3b8';
+                        e.style.borderColor = '#94a3b8';
+                        e.style.boxShadow = 'none';
+                    }); 
                     beaker.style.backgroundColor = '#e2e8f0'; 
-                    document.getElementById('status').innerHTML = "狀態: <span class='text-rose-600'>偵測到極端高溫環境！所有酵素皆已結構變性失效 (不可逆)！</span>";
                 }
 
                 if (p <= 3.0) {
-                    if(!lockStates.saliva.denatured) { lockStates.saliva.denatured = true; document.querySelectorAll('.enz-saliva').forEach(e => e.style.backgroundColor = '#94a3b8'); }
-                    if(!lockStates.liver.denatured) { lockStates.liver.denatured = true; document.querySelectorAll('.enz-liver').forEach(e => e.style.backgroundColor = '#94a3b8'); }
+                    if(!lockStates.saliva.denatured) { lockStates.saliva.denatured = true; document.querySelectorAll('.enz-saliva').forEach(e => { e.style.backgroundColor = '#94a3b8'; e.style.borderColor = '#94a3b8'; e.style.boxShadow = 'none'; }); }
+                    if(!lockStates.liver.denatured) { lockStates.liver.denatured = true; document.querySelectorAll('.enz-liver').forEach(e => { e.style.backgroundColor = '#94a3b8'; e.style.borderColor = '#94a3b8'; e.style.boxShadow = 'none'; }); }
                 }
                 if (p >= 11.0) {
-                    if(!lockStates.pepsin.denatured) { lockStates.pepsin.denatured = true; document.querySelectorAll('.enz-pepsin').forEach(e => e.style.backgroundColor = '#94a3b8'); }
+                    if(!lockStates.pepsin.denatured) { lockStates.pepsin.denatured = true; document.querySelectorAll('.enz-pepsin').forEach(e => { e.style.backgroundColor = '#94a3b8'; e.style.borderColor = '#94a3b8'; e.style.boxShadow = 'none'; }); }
                 }
 
-                // 核心運算：修改為 42°C 時達到巔峰 120% 活性
                 if (!lockStates.saliva.denatured) { dataStore.act.saliva = Math.max(0, 120 * Math.exp(-Math.pow(t - 42, 2) / 300) * Math.exp(-Math.pow(p - 7.0, 2) / 4)); } else { dataStore.act.saliva = 0; }
                 if (!lockStates.pepsin.denatured) { dataStore.act.pepsin = Math.max(0, 120 * Math.exp(-Math.pow(t - 42, 2) / 300) * Math.exp(-Math.pow(p - 2.0, 2) / 2.5)); } else { dataStore.act.pepsin = 0; }
                 if (!lockStates.liver.denatured) { dataStore.act.liver  = Math.max(0, 120 * Math.exp(-Math.pow(t - 42, 2) / 300) * Math.exp(-Math.pow(p - 7.4, 2) / 4)); } else { dataStore.act.liver = 0; }
@@ -468,15 +530,16 @@
                 
                 if(time >= maxTime) {
                     playing = false;
-                    document.getElementById('status').innerHTML = "狀態: <span class='text-blue-600'>實驗時間結束 (已達 400 秒紀錄上限)</span>";
                     document.getElementById('btnPlay').innerText = "🔄 實驗結束";
                     document.getElementById('btnPlay').disabled = true;
                     document.getElementById('btnPlay').classList.add('opacity-50', 'cursor-not-allowed');
                 }
             }
         }
+        
         setInterval(tick, 50);
         updateUIFeedback();
+        updateChartVisibility();
     </script>
 </body>
 </html>
