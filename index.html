@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-    <title>🧪 酵素反應高效複習儀</title>
+    <title>🧪 酵素模擬實驗</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -42,25 +42,24 @@
         @media (orientation: portrait) { #orientation-warning { display: flex; } }
 
         /* ==========================================
-           內部 UI 元件：胖手指防護微調
+           內部 UI 元件微調
            ========================================== */
         .checkbox-group { display: flex; flex-direction: column; gap: 4px; background: #f8fafc; padding: 8px 10px; border-radius: 8px; border: 1px solid #e2e8f0; }
         .checkbox-group label { font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; color: #475569; margin: 0; }
         .checkbox-group input[type="checkbox"] { width: 15px; height: 15px; cursor: pointer; }
         
         .slider-group { display: flex; flex-direction: column; gap: 0px; padding: 0 4px; }
-        /* 增加上下 margin 防止誤觸 */
         .slider-group input[type="range"] { width: 100%; margin: 12px 0 8px 0; cursor: pointer; height: 8px;}
         .ticks { display: flex; justify-content: space-between; font-size: 10px; color: #94a3b8; padding: 0 2px; font-weight: 600; }
         
         /* ==========================================
-           中央燒杯繪製區 (高度拉伸版 480px)
+           中央燒杯繪製區 (向上提拉優化版)
            ========================================== */
         #beaker-wrapper { 
             position: relative; 
             width: 340px; 
-            height: 480px; 
-            transform-origin: center bottom;
+            height: 460px; /* 高度微調避免切底 */
+            transform-origin: center top; /* 縮放時貼齊上方 */
             transition: transform 0.3s ease;
         }
         @media (max-height: 800px) { #beaker-wrapper { transform: scale(0.85); } }
@@ -88,7 +87,6 @@
         
         .substrate { width: 45px; height: 45px; z-index: 3; }
         
-        /* 產物解綁統一尺寸，由各自 class 決定大小 */
         .product { 
             z-index: 2; 
             background: transparent !important; 
@@ -105,7 +103,6 @@
             z-index: -1;
         }
 
-        /* 產物尺寸獨立設定：分解較小，合成(尿素)巨大化 */
         .prod-sugar { width: 28px; height: 28px; }
         .prod-aa { width: 28px; height: 28px; }
         .prod-urea { width: 55px; height: 55px; font-size: 13px; }
@@ -141,7 +138,7 @@
     </div>
 
     <header class="flex-none h-[56px] px-6 bg-white border-b border-slate-200 shadow-sm flex justify-between items-center z-10">
-        <h1 class="text-xl font-bold text-slate-800">🧪 酵素反應高效複習儀</h1>
+        <h1 class="text-xl font-bold text-slate-800">🧪 酵素模擬實驗</h1>
         <button onclick="location.reload()" class="border border-slate-300 px-4 py-1.5 rounded-lg text-sm font-bold text-slate-600 hover:bg-slate-100 transition">重置實驗</button>
     </header>
 
@@ -183,13 +180,13 @@
             </div>
         </div>
 
-        <div class="flex-1 flex flex-col items-center justify-start bg-slate-200/50 rounded-2xl shadow-inner border border-slate-200 relative overflow-hidden p-4 pt-4">
+        <div class="flex-1 flex flex-col items-center justify-start bg-slate-200/50 rounded-2xl shadow-inner border border-slate-200 relative overflow-hidden p-2 pt-3">
             
-            <button id="btnPlay" class="mb-4 w-64 py-2.5 bg-emerald-500 text-white font-black rounded-full hover:bg-emerald-600 transition shadow-lg tracking-widest text-base border-[3px] border-white z-10 flex-none">
+            <button id="btnPlay" class="mb-2 w-64 py-2 bg-emerald-500 text-white font-black rounded-full hover:bg-emerald-600 transition shadow-lg tracking-widest text-base border-[3px] border-white z-10 flex-none">
                 ▶ 開始反應
             </button>
 
-            <div id="beaker-wrapper" class="flex-none mt-2">
+            <div id="beaker-wrapper" class="flex-none mt-0">
                 <div id="beaker"></div>
                 <div class="beaker-lines">
                     <div>400 ml<div class="line-mark"></div></div>
@@ -258,8 +255,7 @@
 
         const beaker = document.getElementById('beaker');
         const beakerWrapper = document.getElementById('beaker-wrapper');
-        // 更新座標軸限制：適應新的 480px 高度
-        const bWidth = 340, bHeight = 480;
+        const bWidth = 340, bHeight = 460;
         let particles = [];
         let playing = false, time = 0, active = true;
         const maxTime = 400;
@@ -325,7 +321,7 @@
             particles.push({ el, type, name, x, y, size, vx: (Math.random()-0.5)*2, vy: (Math.random()-0.5)*2, cooldown: 0 });
         }
 
-        // 修改 layout.padding.bottom 解決數字被裁切問題
+        // 移除 left 負邊距，讓 Chart.js 自動推算 Y 軸標籤空間
         const createMultiChart = (id, datasetsConfig, maxVal) => new Chart(document.getElementById(id).getContext('2d'), {
             type: 'line',
             data: {
@@ -336,10 +332,10 @@
                 responsive: true, maintainAspectRatio: false, animation: false,
                 plugins: { legend: { display: false }, title: { display: false } },
                 scales: { 
-                    x: { ticks: { maxTicksLimit: 11, callback: v => (v / 20).toFixed(0), font: { size: 9 }, padding: 0 }, title: { display: false } }, 
-                    y: { min: 0, max: maxVal, ticks: { font: { size: 9 }, padding: 2 }, border: { display: false } } 
+                    x: { ticks: { maxTicksLimit: 11, callback: v => (v / 20).toFixed(0), font: { size: 9 }, padding: 1 }, title: { display: false } }, 
+                    y: { min: 0, max: maxVal, ticks: { font: { size: 9 }, padding: 3 }, border: { display: false } } 
                 },
-                layout: { padding: { left: -5, right: 0, top: 5, bottom: 5 } } 
+                layout: { padding: { left: 5, right: 10, top: 5, bottom: 5 } } 
             }
         });
 
@@ -444,10 +440,14 @@
                             if (Math.sqrt(dx * dx + dy * dy) < (p1.size + p2.size) / 2) {
                                 subObj.el.remove();
                                 particles = particles.filter(p => p !== subObj);
-                                spawnProduct(subObj.x, subObj.y, config.prodType, config.label);
-                                spawnProduct(subObj.x + 15, subObj.y + 15, config.prodType, config.label);
-                                enz.cooldown = 30;
                                 
+                                // 學理修正：尿素為 1:1 合成反應，其餘分解為 1:2
+                                spawnProduct(subObj.x, subObj.y, config.prodType, config.label);
+                                if (config.prodType !== 'urea') {
+                                    spawnProduct(subObj.x + 15, subObj.y + 15, config.prodType, config.label);
+                                }
+                                
+                                enz.cooldown = 30;
                                 enz.el.style.transform = "scale(1.15)";
                                 setTimeout(() => { if(enz.el) enz.el.style.transform = "scale(1)"; }, 200);
                                 break;
@@ -466,7 +466,6 @@
             el.style.left = x + 'px'; el.style.top = y + 'px';
             beaker.appendChild(el);
             
-            // 獨立指派產物碰撞邊界尺寸 (尿素 55px，其餘 28px)
             let pSize = (name === 'urea') ? 55 : 28;
             particles.push({ el, type: 'product', name, x, y, size: pSize, vx: (Math.random()-0.5)*3, vy: (Math.random()-0.5)*3, cooldown: 0 });
         }
@@ -500,17 +499,27 @@
 
                 let selectors = Array.from(document.querySelectorAll('.setup-cb:checked')).map(cb => cb.getAttribute('data-name'));
                 
+                // 學理修正：依據 1:1 或 1:2 調整數據增長
                 if (selectors.includes('starch') && selectors.includes('saliva')) {
                     let rate = dataStore.act.saliva * 0.025;
-                    if(dataStore.sub.starch > 0) { dataStore.sub.starch -= rate; dataStore.prod.sugar += rate * 2; }
+                    if(dataStore.sub.starch > 0) { 
+                        let actual = Math.min(rate, dataStore.sub.starch);
+                        dataStore.sub.starch -= actual; dataStore.prod.sugar += actual * 2; 
+                    }
                 }
                 if (selectors.includes('protein') && selectors.includes('pepsin')) {
                     let rate = dataStore.act.pepsin * 0.025;
-                    if(dataStore.sub.protein > 0) { dataStore.sub.protein -= rate; dataStore.prod.aa += rate * 2; }
+                    if(dataStore.sub.protein > 0) { 
+                        let actual = Math.min(rate, dataStore.sub.protein);
+                        dataStore.sub.protein -= actual; dataStore.prod.aa += actual * 2; 
+                    }
                 }
                 if (selectors.includes('ammonia') && selectors.includes('liver')) {
                     let rate = dataStore.act.liver * 0.025;
-                    if(dataStore.sub.ammonia > 0) { dataStore.sub.ammonia -= rate; dataStore.prod.urea += rate * 2; }
+                    if(dataStore.sub.ammonia > 0) { 
+                        let actual = Math.min(rate, dataStore.sub.ammonia);
+                        dataStore.sub.ammonia -= actual; dataStore.prod.urea += actual; // 1:1 數量同步
+                    }
                 }
 
                 ['starch', 'protein', 'ammonia'].forEach(k => { if(dataStore.sub[k] < 0) dataStore.sub[k] = 0; });
@@ -535,16 +544,12 @@
                 cS.update(); cP.update(); cA.update();
                 time++;
                 
-                // 結束判斷與按鈕動態賦能 (無縫切換重置功能)
                 if(time >= maxTime) {
                     playing = false;
                     let btn = document.getElementById('btnPlay');
                     btn.innerText = "🔄 重置實驗";
-                    // 移除原有的播放/暫停顏色與 Hover 特效
                     btn.classList.remove('bg-emerald-500', 'bg-amber-500', 'hover:bg-emerald-600', 'hover:bg-amber-600');
-                    // 賦予全新的藍色重置按鈕外觀與心跳特效
-                    btn.className = "mb-4 w-64 py-2.5 bg-blue-500 text-white font-black rounded-full hover:bg-blue-600 transition shadow-lg tracking-widest text-base border-[3px] border-white z-10 flex-none animate-pulse";
-                    // 覆寫點擊行為
+                    btn.className = "mb-2 w-64 py-2 bg-blue-500 text-white font-black rounded-full hover:bg-blue-600 transition shadow-lg tracking-widest text-base border-[3px] border-white z-10 flex-none animate-pulse";
                     btn.onclick = () => location.reload();
                 }
             }
