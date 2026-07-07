@@ -8,7 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* ==========================================
-           全域導覽列 (模組化統一)
+           全域導覽列
            ========================================== */
         #nav-tabs-bar {
             display: flex;
@@ -38,21 +38,20 @@
             color: #2E7D32;
         }
 
-        /* ==========================================
-           橫向防呆機制
-           ========================================== */
+        /* 橫向防呆機制 */
         #orientation-warning { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: #0f172a; color: white; z-index: 9999; flex-direction: column; justify-content: center; align-items: center; font-size: 1.5em; text-align: center; padding: 20px; box-sizing: border-box; }
         @media (orientation: portrait) { #orientation-warning { display: flex; } }
 
         /* ==========================================
-           內部 UI 元件微調 (保留原有風格並融入 Tailwind)
+           內部 UI 元件微調
            ========================================== */
         .checkbox-group { display: flex; flex-direction: column; gap: 6px; background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0; }
         .checkbox-group label { font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; color: #475569; }
         .checkbox-group input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
         
         .slider-group { display: flex; flex-direction: column; gap: 4px; padding: 0 4px; }
-        .slider-group input { width: 100%; margin: 0; height: 24px; }
+        /* 修正 1：移除寫死的 height 解決 Safari pH 卷軸消失問題，改用 margin 撐開空間 */
+        .slider-group input[type="range"] { width: 100%; margin: 8px 0; cursor: pointer; }
         .ticks { display: flex; justify-content: space-between; font-size: 11px; color: #94a3b8; padding: 0 2px; font-weight: 600; }
         
         /* ==========================================
@@ -65,7 +64,6 @@
             transform-origin: center center;
             transition: transform 0.3s ease;
         }
-        /* 針對高度較短的平板進行等比例縮小，確保燒杯不被切斷 */
         @media (max-height: 800px) { #beaker-wrapper { transform: scale(0.9); } }
         @media (max-height: 650px) { #beaker-wrapper { transform: scale(0.75); } }
 
@@ -77,24 +75,40 @@
         .line-mark { border-bottom: 2px solid #cbd5e1; width: 24px; margin-left: auto; margin-bottom: 2px; }
 
         /* ==========================================
-           粒子系統設定 (完全保留原色彩對齊設計)
+           粒子系統設定與視覺優化
            ========================================== */
         .particle { position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: white; user-select: none; text-align: center; white-space: nowrap; box-shadow: 1px 2px 6px rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.3); }
-        .enzyme { width: 50px; height: 50px; border-radius: 14px; transition: background 0.4s, transform 0.2s; z-index: 4; }
-        .substrate { width: 45px; height: 45px; z-index: 3; }
-        .product { width: 35px; height: 35px; z-index: 2; }
         
-        /* 1. 澱粉系統 */
+        /* 視覺優化 1：酵素加入顯眼的黃色光暈外框 */
+        .enzyme { 
+            width: 50px; height: 50px; border-radius: 14px; 
+            border: 2px solid #fef08a; /* 亮黃邊框 */
+            box-shadow: 0 0 14px 4px rgba(250, 204, 21, 0.8), inset 0 0 6px rgba(255,255,255,0.4); 
+            transition: background 0.4s, transform 0.2s; 
+            z-index: 4; 
+        }
+        
+        .substrate { width: 45px; height: 45px; z-index: 3; }
+        
+        /* 視覺優化 2：生成物變得更小、半透明、柔邊化 */
+        .product { 
+            width: 28px; height: 28px; 
+            opacity: 0.8; 
+            filter: blur(1px); 
+            z-index: 2; 
+        }
+        
+        /* 澱粉系統 */
         .sub-starch { background: #EF4444; }     
         .enz-saliva { background: #15803D; }     
         .prod-sugar { background: #22C55E; }     
 
-        /* 2. 蛋白質系統 */
+        /* 蛋白質系統 */
         .sub-protein { background: #3B82F6; }    
         .enz-pepsin { background: #6B21A8; }     
         .prod-aa { background: #A855F7; }        
 
-        /* 3. 氨系統 */
+        /* 氨系統 */
         .sub-ammonia { background: #06B6D4; }    
         .enz-liver { background: #115E59; }      
         .prod-urea { background: #14B8A6; }      
@@ -123,14 +137,14 @@
 
     <main class="flex-1 flex flex-row w-full max-w-[1600px] mx-auto gap-4 p-4 min-h-0">
         
-        <div class="w-[280px] flex-none bg-white p-5 flex flex-col gap-4 rounded-2xl shadow-xl border border-slate-100 overflow-y-auto">
+        <div class="w-[280px] flex-none bg-white p-5 flex flex-col gap-4 rounded-2xl shadow-xl border border-slate-100 overflow-y-auto pb-8">
             <h3 class="font-black text-lg text-slate-700 border-b pb-2">參數控制台</h3>
             
-            <button id="btnPlay" class="w-full py-3 bg-emerald-500 text-white font-black rounded-xl hover:bg-emerald-600 transition shadow-md tracking-widest text-base">
+            <button id="btnPlay" class="w-full py-3 bg-emerald-500 text-white font-black rounded-xl hover:bg-emerald-600 transition shadow-md tracking-widest text-base flex-none">
                 開始 / 暫停
             </button>
             
-            <div class="flex flex-col gap-3 mt-2">
+            <div class="flex flex-col gap-3 mt-2 flex-none">
                 <h4 class="font-bold text-sm text-slate-600">1. 貨架選擇 <span class="text-xs text-rose-500 font-normal">(最多4個)</span></h4>
                 
                 <div class="checkbox-group shadow-inner">
@@ -148,7 +162,7 @@
                 </div>
             </div>
 
-            <div class="flex flex-col gap-4 mt-2 border-t pt-4">
+            <div class="flex flex-col gap-4 mt-2 border-t pt-4 flex-none">
                 <div class="slider-group">
                     <label class="text-sm font-bold text-slate-600 mb-1">溫度: <b class="text-rose-600"><span id="tempVal">37</span> °C</b></label>
                     <input type="range" id="temp" min="0" max="60" value="37" class="accent-rose-500">
@@ -162,7 +176,7 @@
                 </div>
             </div>
             
-            <div id="status" class="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs font-bold text-amber-700 leading-relaxed shadow-sm">
+            <div id="status" class="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs font-bold text-amber-700 leading-relaxed shadow-sm flex-none">
                 狀態: 請先勾選貨架物件後點擊開始
             </div>
         </div>
@@ -194,14 +208,12 @@
     </main>
 
     <script>
-        // 確保平板上可以順暢拉動滑桿而不觸發整個網頁滑動
         window.addEventListener('touchmove', function(e) { 
             if(e.target.tagName !== 'INPUT') { e.preventDefault(); } 
         }, {passive: false});
 
         const beaker = document.getElementById('beaker');
         const beakerWrapper = document.getElementById('beaker-wrapper');
-        // JS 內部座標系依舊維持 340x420，不受外層 CSS scale 影響！
         const bWidth = 340, bHeight = 420;
         let particles = [];
         let playing = false, time = 0, active = true;
@@ -271,7 +283,7 @@
             type: 'line',
             data: {
                 labels: Array.from({length: maxTime}, (_, i) => i),
-                datasets: datasetsConfig.map(cfg => ({ label: cfg.label, data: Array(maxTime).fill(null), borderColor: cfg.color, borderWidth: 2.5, pointRadius: 0, fill: false, hidden: true, tension: 0.2 }))
+                datasets: datasetsConfig.map(cfg => ({ label: cfg.label, data: Array(maxTime).fill(null), borderColor: cfg.color, borderWidth: 2.5, pointRadius: 0, fill: false, hidden: true, tension: 0.2, spanGaps: true }))
             },
             options: {
                 responsive: true, maintainAspectRatio: false, animation: false,
@@ -370,7 +382,6 @@
                                 spawnProduct(subObj.x + 15, subObj.y + 15, config.prodType, config.label);
                                 enz.cooldown = 30;
                                 
-                                // 加入輕微碰撞放大特效
                                 enz.el.style.transform = "scale(1.15)";
                                 setTimeout(() => { if(enz.el) enz.el.style.transform = "scale(1)"; }, 200);
                                 break;
@@ -388,7 +399,8 @@
             el.innerText = label;
             el.style.left = x + 'px'; el.style.top = y + 'px';
             beaker.appendChild(el);
-            particles.push({ el, type: 'product', name, x, y, size: 35, vx: (Math.random()-0.5)*3, vy: (Math.random()-0.5)*3, cooldown: 0 });
+            // 修正產物的尺寸變數對應 CSS，原 35 改為 28
+            particles.push({ el, type: 'product', name, x, y, size: 28, vx: (Math.random()-0.5)*3, vy: (Math.random()-0.5)*3, cooldown: 0 });
         }
 
         function tick() {
@@ -396,21 +408,26 @@
                 let t = parseInt(document.getElementById('temp').value);
                 let p = parseFloat(document.getElementById('ph').value);
 
-                if (t > 45) {
+                // 學理微調：臨界點延後至 50°C
+                if (t >= 50) {
                     ['saliva', 'pepsin', 'liver'].forEach(key => lockStates[key].denatured = true);
-                    document.querySelectorAll('.enzyme').forEach(e => e.style.backgroundColor = '#94a3b8'); // Tailwind slate-400
-                    beaker.style.backgroundColor = '#e2e8f0'; // Tailwind slate-200
-                    document.getElementById('status').innerHTML = "狀態: <span class='text-rose-600'>偵測到高溫環境！所有酵素皆已結構變性失效 (不可逆)！</span>";
+                    document.querySelectorAll('.enzyme').forEach(e => e.style.backgroundColor = '#94a3b8'); 
+                    beaker.style.backgroundColor = '#e2e8f0'; 
+                    document.getElementById('status').innerHTML = "狀態: <span class='text-rose-600'>偵測到極端高溫環境！所有酵素皆已結構變性失效 (不可逆)！</span>";
                 }
 
                 if (p <= 3.0) {
                     if(!lockStates.saliva.denatured) { lockStates.saliva.denatured = true; document.querySelectorAll('.enz-saliva').forEach(e => e.style.backgroundColor = '#94a3b8'); }
                     if(!lockStates.liver.denatured) { lockStates.liver.denatured = true; document.querySelectorAll('.enz-liver').forEach(e => e.style.backgroundColor = '#94a3b8'); }
                 }
+                if (p >= 11.0) {
+                    if(!lockStates.pepsin.denatured) { lockStates.pepsin.denatured = true; document.querySelectorAll('.enz-pepsin').forEach(e => e.style.backgroundColor = '#94a3b8'); }
+                }
 
-                if (!lockStates.saliva.denatured) { dataStore.act.saliva = 100 * Math.exp(-Math.pow(t - 40, 2) / 600) * Math.exp(-Math.pow(p - 7, 2) / 4); } else { dataStore.act.saliva = 0; }
-                if (!lockStates.pepsin.denatured) { dataStore.act.pepsin = 100 * Math.exp(-Math.pow(t - 40, 2) / 600) * Math.exp(-Math.pow(p - 2, 2) / 2.5); } else { dataStore.act.pepsin = 0; }
-                if (!lockStates.liver.denatured) { dataStore.act.liver = 100 * Math.exp(-Math.pow(t - 40, 2) / 600) * Math.exp(-Math.pow(p - 7.4, 2) / 4); } else { dataStore.act.liver = 0; }
+                // 核心運算：修改為 42°C 時達到巔峰 120% 活性
+                if (!lockStates.saliva.denatured) { dataStore.act.saliva = Math.max(0, 120 * Math.exp(-Math.pow(t - 42, 2) / 300) * Math.exp(-Math.pow(p - 7.0, 2) / 4)); } else { dataStore.act.saliva = 0; }
+                if (!lockStates.pepsin.denatured) { dataStore.act.pepsin = Math.max(0, 120 * Math.exp(-Math.pow(t - 42, 2) / 300) * Math.exp(-Math.pow(p - 2.0, 2) / 2.5)); } else { dataStore.act.pepsin = 0; }
+                if (!lockStates.liver.denatured) { dataStore.act.liver  = Math.max(0, 120 * Math.exp(-Math.pow(t - 42, 2) / 300) * Math.exp(-Math.pow(p - 7.4, 2) / 4)); } else { dataStore.act.liver = 0; }
 
                 let selectors = Array.from(document.querySelectorAll('.setup-cb:checked')).map(cb => cb.getAttribute('data-name'));
                 
@@ -449,7 +466,6 @@
                 cS.update(); cP.update(); cA.update();
                 time++;
                 
-                // 結束判斷
                 if(time >= maxTime) {
                     playing = false;
                     document.getElementById('status').innerHTML = "狀態: <span class='text-blue-600'>實驗時間結束 (已達 400 秒紀錄上限)</span>";
