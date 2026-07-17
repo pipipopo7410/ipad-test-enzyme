@@ -14,15 +14,15 @@
         @media (orientation: portrait) { #orientation-warning { display: flex; } }
 
         /* ==========================================
-           內部 UI 元件微調
+           內部 UI 元件微調 (字體與間距放大)
            ========================================== */
-        .checkbox-group { display: flex; flex-direction: column; gap: 4px; background: #f8fafc; padding: 8px 10px; border-radius: 8px; border: 1px solid #e2e8f0; }
-        .checkbox-group label { font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; color: #475569; margin: 0; }
-        .checkbox-group input[type="checkbox"] { width: 15px; height: 15px; cursor: pointer; }
+        .checkbox-group { display: flex; flex-direction: column; gap: 6px; background: #f8fafc; padding: 12px 14px; border-radius: 8px; border: 1px solid #e2e8f0; }
+        .checkbox-group label { font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; color: #475569; margin: 0; }
+        .checkbox-group input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
         
         .slider-group { display: flex; flex-direction: column; gap: 0px; padding: 0 4px; }
-        .slider-group input[type="range"] { width: 100%; margin: 12px 0 8px 0; cursor: pointer; height: 8px;}
-        .ticks { display: flex; justify-content: space-between; font-size: 10px; color: #94a3b8; padding: 0 2px; font-weight: 600; }
+        .slider-group input[type="range"] { width: 100%; margin: 14px 0 10px 0; cursor: pointer; height: 8px;}
+        .ticks { display: flex; justify-content: space-between; font-size: 11px; color: #94a3b8; padding: 0 2px; font-weight: 600; }
         .ticks span { position: relative; display: flex; justify-content: center; width: 24px; }
         .ticks span::before { content: ''; position: absolute; top: -10px; width: 2px; height: 6px; background-color: #cbd5e1; border-radius: 1px; }
         
@@ -43,7 +43,6 @@
         /* ==========================================
            粒子系統設定與視覺優化
            ========================================== */
-        /* 移除 opacity 的 transition，交由 JS 每幀精準計算，避免 CSS 動畫干擾 */
         .particle { position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: white; user-select: none; text-align: center; white-space: nowrap; box-shadow: 1px 2px 6px rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.3); transition: background 0.4s, border-color 0.4s; }
         
         .enzyme { width: 50px; height: 50px; border-radius: 14px; border: 2px solid #fef08a; box-shadow: 0 0 14px 4px rgba(250, 204, 21, 0.8), inset 0 0 6px rgba(255,255,255,0.4); z-index: 4; }
@@ -77,49 +76,57 @@
 
     <main class="flex-1 flex flex-row w-full max-w-[1600px] mx-auto gap-4 p-4 min-h-0">
         
-        <div class="w-[260px] flex-none bg-white p-4 flex flex-col gap-3 rounded-2xl shadow-xl border border-slate-100">
-            <h3 class="font-black text-base text-slate-700 border-b pb-1.5 flex-none">參數控制台</h3>
+        <div class="w-[280px] flex-none bg-white p-5 flex flex-col gap-5 rounded-2xl shadow-xl border border-slate-100">
+            <h3 class="font-black text-lg text-slate-700 border-b pb-2 flex-none">參數控制台</h3>
             
-            <div class="flex flex-col gap-2.5 flex-none">
-                <h4 class="font-bold text-[13px] text-slate-600">1. 貨架選擇 <span class="text-[10px] text-rose-500 font-normal">(各最多2個)</span></h4>
-                
+            <div class="flex flex-col gap-4 flex-none">
                 <div class="checkbox-group shadow-inner">
-                    <label class="text-rose-600 border-b border-rose-100 pb-1 mb-0.5 text-xs">【選擇受質】</label>
+                    <!-- 標題與數量提示整合 -->
+                    <label class="text-rose-600 border-b border-rose-100 pb-1.5 mb-1 text-[15px] font-bold w-full flex justify-between">
+                        <span>【選擇受質】</span>
+                        <span class="text-[12px] text-rose-400 font-normal">(最多2個)</span>
+                    </label>
                     <label><input type="checkbox" class="setup-cb" data-type="substrate" data-name="starch" data-label="澱粉"> 澱粉</label>
                     <label><input type="checkbox" class="setup-cb" data-type="substrate" data-name="protein" data-label="蛋白質"> 蛋白質</label>
                     <label><input type="checkbox" class="setup-cb" data-type="substrate" data-name="ammonia" data-label="氨"> 氨 (含氮廢物)</label>
                 </div>
                 
                 <div class="checkbox-group shadow-inner">
-                    <label class="text-blue-600 border-b border-blue-100 pb-1 mb-0.5 text-xs">【選擇酵素】</label>
+                    <!-- 標題與數量提示整合 -->
+                    <label class="text-blue-600 border-b border-blue-100 pb-1.5 mb-1 text-[15px] font-bold w-full flex justify-between">
+                        <span>【選擇酵素】</span>
+                        <span class="text-[12px] text-blue-400 font-normal">(最多2個)</span>
+                    </label>
                     <label><input type="checkbox" class="setup-cb" data-type="enzyme" data-name="saliva" data-label="唾液"> 唾液澱粉酶</label>
                     <label><input type="checkbox" class="setup-cb" data-type="enzyme" data-name="pepsin" data-label="胃液"> 胃蛋白酶</label>
                     <label><input type="checkbox" class="setup-cb" data-type="enzyme" data-name="liver" data-label="肝臟酵素"> 肝臟酵素</label>
                 </div>
             </div>
 
-            <div class="flex flex-col gap-6 mt-1 border-t pt-5 flex-none">
+            <!-- 拉大控制項與下方的間距 -->
+            <div class="flex flex-col gap-8 mt-2 border-t pt-6 flex-none">
                 <div class="slider-group">
-                    <label class="text-[13px] font-bold text-slate-600 mb-0">溫度: <b class="text-rose-600"><span id="tempVal">37</span> °C</b></label>
+                    <label class="text-[14px] font-bold text-slate-600 mb-0">溫度: <b class="text-rose-600"><span id="tempVal">37</span> °C</b></label>
                     <input type="range" id="temp" min="0" max="50" value="37" class="accent-rose-500">
                     <div class="ticks mt-1"><span>0°C</span><span>10°C</span><span>20°C</span><span>30°C</span><span>40°C</span><span>50°C</span></div>
                 </div>
                 
                 <div class="slider-group">
-                    <label class="text-[13px] font-bold text-slate-600 mb-0">酸鹼值: <b class="text-blue-600">pH <span id="phVal">7.0</span></b></label>
+                    <label class="text-[14px] font-bold text-slate-600 mb-0">酸鹼值: <b class="text-blue-600">pH <span id="phVal">7.0</span></b></label>
                     <input type="range" id="ph" min="0" max="14" step="0.1" value="7" class="accent-blue-500">
                     <div class="ticks mt-1"><span>0(酸)</span><span class="opacity-0">.</span><span>7(中)</span><span class="opacity-0">.</span><span>14(鹼)</span></div>
                 </div>
             </div>
         </div>
 
-        <div class="flex-1 flex flex-col items-center justify-start bg-slate-200/50 rounded-2xl shadow-inner border border-slate-200 relative overflow-hidden p-2 pt-4">
+        <!-- 變更為 justify-center，讓燒杯與按鈕視覺重心下沉置中 -->
+        <div class="flex-1 flex flex-col items-center justify-center pb-6 bg-slate-200/50 rounded-2xl shadow-inner border border-slate-200 relative overflow-hidden p-2">
             
-            <div class="w-[340px] flex gap-3 mb-4 z-10 flex-none">
-                <button id="btnPlay" class="flex-1 py-2 bg-emerald-500 text-white font-black rounded-lg hover:bg-emerald-600 transition shadow-md tracking-widest text-sm border-2 border-emerald-600">
+            <div class="w-[340px] flex gap-3 mb-6 z-10 flex-none">
+                <button id="btnPlay" class="flex-1 py-2.5 bg-emerald-500 text-white font-black rounded-lg hover:bg-emerald-600 transition shadow-md tracking-widest text-sm border-2 border-emerald-600">
                     ▶ 開始反應
                 </button>
-                <button id="btnResetAll" onclick="location.reload()" class="flex-1 py-2 bg-slate-100 text-slate-600 font-black rounded-lg hover:bg-slate-200 transition shadow-sm tracking-widest text-sm border-2 border-slate-300">
+                <button id="btnResetAll" onclick="location.reload()" class="flex-1 py-2.5 bg-slate-100 text-slate-600 font-black rounded-lg hover:bg-slate-200 transition shadow-sm tracking-widest text-sm border-2 border-slate-300">
                     🔄 重置實驗
                 </button>
             </div>
@@ -140,7 +147,7 @@
             
             <div class="flex-1 flex flex-col w-full min-h-0 bg-slate-50 rounded-xl p-2 border border-slate-100 shadow-inner">
                 <div class="flex justify-between items-center px-1 pb-1 border-b border-slate-200 mb-1 flex-none">
-                    <span class="text-[12px] font-black text-slate-700">📦 受質數量</span>
+                    <span class="text-[13px] font-black text-slate-700">📦 受質總量</span>
                     <div class="flex gap-1.5 text-[10px] font-bold">
                         <span class="leg-item transition-all" data-id="starch" style="color:#EF4444">■ 澱粉</span>
                         <span class="leg-item transition-all" data-id="protein" style="color:#3B82F6">■ 蛋白質</span>
@@ -155,7 +162,7 @@
 
             <div class="flex-1 flex flex-col w-full min-h-0 bg-slate-50 rounded-xl p-2 border border-slate-100 shadow-inner">
                 <div class="flex justify-between items-center px-1 pb-1 border-b border-slate-200 mb-1 flex-none">
-                    <span class="text-[12px] font-black text-slate-700">✨ 產物數量</span>
+                    <span class="text-[13px] font-black text-slate-700">✨ 產物總量</span>
                     <div class="flex gap-1.5 text-[10px] font-bold">
                         <span class="leg-item transition-all" data-id="sugar" style="color:#22C55E">■ 多醣</span>
                         <span class="leg-item transition-all" data-id="aa" style="color:#A855F7">■ 胺基酸</span>
@@ -170,7 +177,7 @@
 
             <div class="flex-1 flex flex-col w-full min-h-0 bg-slate-50 rounded-xl p-2 border border-slate-100 shadow-inner">
                 <div class="flex justify-between items-center px-1 pb-1 border-b border-slate-200 mb-1 flex-none">
-                    <span class="text-[12px] font-black text-slate-700">⚡ 活性百分比 (%)</span>
+                    <span class="text-[13px] font-black text-slate-700">⚡ 酵素活性 (%)</span>
                     <div class="flex gap-1.5 text-[10px] font-bold">
                         <span class="leg-item transition-all" data-id="saliva" style="color:#15803D">■ 唾液</span>
                         <span class="leg-item transition-all" data-id="pepsin" style="color:#6B21A8">■ 胃液</span>
@@ -198,7 +205,6 @@
         let particles = [];
         let playing = false, time = 0;
         
-        // 回歸 400 點高頻率更新機制，保持動畫順暢度
         const maxTime = 400; 
 
         let dataStore = {
@@ -241,13 +247,14 @@
             document.querySelectorAll('.setup-cb[data-type="substrate"]:checked').forEach(cb => {
                 let name = cb.getAttribute('data-name');
                 let label = cb.getAttribute('data-label');
-                // 加入 index 與 total，供依序淡出邏輯使用
-                for (let i = 0; i < 6; i++) spawnParticle('substrate', name, label, i, 6);
+                // 受質數量倍增至 12
+                for (let i = 0; i < 12; i++) spawnParticle('substrate', name, label, i, 12);
                 
                 let prodMap = { starch: {p:'sugar', l:'多醣'}, protein: {p:'aa', l:'胺基酸'}, ammonia: {p:'urea', l:'尿素'} };
                 let prod = prodMap[name];
-                for (let i = 0; i < 6; i++) {
-                    let p = spawnParticle('product', prod.p, prod.l, i, 6);
+                // 產物數量倍增至 12
+                for (let i = 0; i < 12; i++) {
+                    let p = spawnParticle('product', prod.p, prod.l, i, 12);
                     p.el.style.opacity = 0;
                 }
             });
@@ -255,7 +262,8 @@
             document.querySelectorAll('.setup-cb[data-type="enzyme"]:checked').forEach(cb => {
                 let name = cb.getAttribute('data-name');
                 let label = cb.getAttribute('data-label');
-                for (let i = 0; i < 3; i++) spawnParticle('enzyme', name, label, i, 3);
+                // 酵素數量倍增至 6
+                for (let i = 0; i < 6; i++) spawnParticle('enzyme', name, label, i, 6);
             });
             
             updateChartVisibility();
@@ -273,7 +281,6 @@
             el.style.left = x + 'px'; el.style.top = y + 'px';
             beaker.appendChild(el);
             
-            // 寫入粒子的索引與總數
             let pObj = { el, type, name, x, y, size, vx: (Math.random()-0.5)*2, vy: (Math.random()-0.5)*2, pIndex, pTotal };
             particles.push(pObj);
             return pObj;
@@ -286,7 +293,7 @@
                 datasets: datasetsConfig.map(cfg => ({ 
                     label: cfg.label, data: Array(maxTime).fill(null), borderColor: cfg.color, 
                     borderWidth: 3.5, pointRadius: 0, fill: false, hidden: true, 
-                    tension: 0, /* 關閉平滑，確保數學率變化能瞬間反應出尖銳折角 */
+                    tension: 0, 
                     spanGaps: true 
                 }))
             },
@@ -418,13 +425,12 @@
             updateUIFeedback();
             
             playing = true;
-            btnPlay.className = "flex-1 py-2 bg-amber-500 text-white font-black rounded-lg hover:bg-amber-600 transition shadow-md tracking-widest text-sm border-2 border-amber-600";
+            btnPlay.className = "flex-1 py-2.5 bg-amber-500 text-white font-black rounded-lg hover:bg-amber-600 transition shadow-md tracking-widest text-sm border-2 border-amber-600";
             btnPlay.innerText = "⏸ 暫停反應";
             btnPlay.onclick = togglePlay;
         }
 
         function moveParticles() {
-            // 實作「透明度閘門碰撞」
             for (let i = 0; i < particles.length; i++) {
                 for (let j = i + 1; j < particles.length; j++) {
                     let p1 = particles[i], p2 = particles[j];
@@ -465,7 +471,6 @@
                 p.y = Math.max(35, Math.min(bHeight - p.size - 12, p.y));
                 p.el.style.left = p.x + 'px'; p.el.style.top = p.y + 'px';
 
-                // 核心邏輯修正：量子化分段依序淡出 / 淡入
                 if (p.type === 'substrate') {
                     let globalRatio = dataStore.sub[p.name] / 1000;
                     let upperThreshold = (p.pIndex + 1) / p.pTotal;
@@ -545,7 +550,6 @@
 
                 moveParticles();
 
-                // 恢復 400 點高頻率寫入，配合 tension: 0 產生動畫平滑推進且瞬間折角的視覺效果
                 cS.data.datasets[0].data[time] = dataStore.sub.starch;
                 cS.data.datasets[1].data[time] = dataStore.sub.protein + 15;
                 cS.data.datasets[2].data[time] = dataStore.sub.ammonia + 30;
@@ -565,7 +569,7 @@
                     playing = false;
                     btnPlay.innerText = "🔄 再來一次";
                     btnPlay.classList.remove('bg-emerald-500', 'bg-amber-500', 'hover:bg-emerald-600', 'hover:bg-amber-600');
-                    btnPlay.className = "flex-1 py-2 bg-blue-500 text-white font-black rounded-lg hover:bg-blue-600 transition shadow-md tracking-widest text-sm border-2 border-blue-600 animate-pulse";
+                    btnPlay.className = "flex-1 py-2.5 bg-blue-500 text-white font-black rounded-lg hover:bg-blue-600 transition shadow-md tracking-widest text-sm border-2 border-blue-600 animate-pulse";
                     btnPlay.onclick = replayExperiment;
                 }
             }
