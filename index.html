@@ -8,36 +8,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* ==========================================
-           全域導覽列
+           全域設定
            ========================================== */
-        #nav-tabs-bar {
-            display: flex;
-            background: #2E7D32;
-            padding: 0 15px;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-            height: 44px;
-            box-sizing: border-box;
-            z-index: 999;
-            width: 100%;
-            flex-shrink: 0;
-        }
-        .nav-tab-btn {
-            padding: 6px 14px;
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 0.9em;
-            cursor: pointer;
-        }
-        .nav-tab-btn.active {
-            background: white;
-            color: #2E7D32;
-        }
-
         #orientation-warning { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: #0f172a; color: white; z-index: 9999; flex-direction: column; justify-content: center; align-items: center; font-size: 1.5em; text-align: center; padding: 20px; box-sizing: border-box; }
         @media (orientation: portrait) { #orientation-warning { display: flex; } }
 
@@ -51,17 +23,13 @@
         .slider-group { display: flex; flex-direction: column; gap: 0px; padding: 0 4px; }
         .slider-group input[type="range"] { width: 100%; margin: 12px 0 8px 0; cursor: pointer; height: 8px;}
         .ticks { display: flex; justify-content: space-between; font-size: 10px; color: #94a3b8; padding: 0 2px; font-weight: 600; }
+        .ticks span { position: relative; display: flex; justify-content: center; width: 24px; }
+        .ticks span::before { content: ''; position: absolute; top: -10px; width: 2px; height: 6px; background-color: #cbd5e1; border-radius: 1px; }
         
         /* ==========================================
-           中央燒杯繪製區 (向上提拉優化版)
+           中央燒杯繪製區
            ========================================== */
-        #beaker-wrapper { 
-            position: relative; 
-            width: 340px; 
-            height: 460px; /* 高度微調避免切底 */
-            transform-origin: center top; /* 縮放時貼齊上方 */
-            transition: transform 0.3s ease;
-        }
+        #beaker-wrapper { position: relative; width: 340px; height: 560px; transform-origin: center top; transition: transform 0.3s ease; }
         @media (max-height: 800px) { #beaker-wrapper { transform: scale(0.85); } }
         @media (max-height: 650px) { #beaker-wrapper { transform: scale(0.7); } }
 
@@ -75,39 +43,18 @@
         /* ==========================================
            粒子系統設定與視覺優化
            ========================================== */
-        .particle { position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: white; user-select: none; text-align: center; white-space: nowrap; box-shadow: 1px 2px 6px rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.3); }
+        /* 移除 opacity 的 transition，交由 JS 每幀精準計算，避免 CSS 動畫干擾 */
+        .particle { position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: white; user-select: none; text-align: center; white-space: nowrap; box-shadow: 1px 2px 6px rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.3); transition: background 0.4s, border-color 0.4s; }
         
-        .enzyme { 
-            width: 50px; height: 50px; border-radius: 14px; 
-            border: 2px solid #fef08a; 
-            box-shadow: 0 0 14px 4px rgba(250, 204, 21, 0.8), inset 0 0 6px rgba(255,255,255,0.4); 
-            transition: background 0.4s, transform 0.2s; 
-            z-index: 4; 
-        }
-        
+        .enzyme { width: 50px; height: 50px; border-radius: 14px; border: 2px solid #fef08a; box-shadow: 0 0 14px 4px rgba(250, 204, 21, 0.8), inset 0 0 6px rgba(255,255,255,0.4); z-index: 4; }
         .substrate { width: 45px; height: 45px; z-index: 3; }
-        
-        .product { 
-            z-index: 2; 
-            background: transparent !important; 
-            border: none;
-            text-shadow: 0px 1px 2px rgba(0,0,0,0.8);
-        }
-        .product::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            border-radius: 50%;
-            opacity: 0.7;
-            filter: blur(1.5px);
-            z-index: -1;
-        }
+        .product { z-index: 2; background: transparent !important; border: none; text-shadow: 0px 1px 2px rgba(0,0,0,0.8); }
+        .product::before { content: ""; position: absolute; inset: 0; border-radius: 50%; opacity: 0.7; filter: blur(1.5px); z-index: -1; }
 
         .prod-sugar { width: 28px; height: 28px; }
         .prod-aa { width: 28px; height: 28px; }
         .prod-urea { width: 55px; height: 55px; font-size: 13px; }
         
-        /* 色彩對應系統 */
         .sub-starch { background: #EF4444; }     
         .enz-saliva { background: #15803D; }     
         .prod-sugar::before { background: #22C55E; }     
@@ -128,27 +75,13 @@
         🔄<br><br>請將裝置旋轉為<b class="text-rose-400 mx-1">橫向模式</b>以進行課程互動。
     </div>
 
-    <div id="nav-tabs-bar">
-        <button class="nav-tab-btn active">酵素</button>
-        <button class="nav-tab-btn">光合作用</button>
-        <button class="nav-tab-btn">循環</button>
-        <button class="nav-tab-btn">神經</button>
-        <button class="nav-tab-btn">血糖</button>
-        <button class="nav-tab-btn">排氨</button>
-    </div>
-
-    <header class="flex-none h-[56px] px-6 bg-white border-b border-slate-200 shadow-sm flex justify-between items-center z-10">
-        <h1 class="text-xl font-bold text-slate-800">🧪 酵素模擬實驗</h1>
-        <button onclick="location.reload()" class="border border-slate-300 px-4 py-1.5 rounded-lg text-sm font-bold text-slate-600 hover:bg-slate-100 transition">重置實驗</button>
-    </header>
-
     <main class="flex-1 flex flex-row w-full max-w-[1600px] mx-auto gap-4 p-4 min-h-0">
         
         <div class="w-[260px] flex-none bg-white p-4 flex flex-col gap-3 rounded-2xl shadow-xl border border-slate-100">
             <h3 class="font-black text-base text-slate-700 border-b pb-1.5 flex-none">參數控制台</h3>
             
             <div class="flex flex-col gap-2.5 flex-none">
-                <h4 class="font-bold text-[13px] text-slate-600">1. 貨架選擇 <span class="text-[10px] text-rose-500 font-normal">(最多4個)</span></h4>
+                <h4 class="font-bold text-[13px] text-slate-600">1. 貨架選擇 <span class="text-[10px] text-rose-500 font-normal">(各最多2個)</span></h4>
                 
                 <div class="checkbox-group shadow-inner">
                     <label class="text-rose-600 border-b border-rose-100 pb-1 mb-0.5 text-xs">【選擇受質】</label>
@@ -168,27 +101,33 @@
             <div class="flex flex-col gap-6 mt-1 border-t pt-5 flex-none">
                 <div class="slider-group">
                     <label class="text-[13px] font-bold text-slate-600 mb-0">溫度: <b class="text-rose-600"><span id="tempVal">37</span> °C</b></label>
-                    <input type="range" id="temp" min="0" max="60" value="37" class="accent-rose-500">
-                    <div class="ticks mt-1"><span>0°C</span><span>15°C</span><span>30°C</span><span>45°C</span><span>60°C</span></div>
+                    <input type="range" id="temp" min="0" max="50" value="37" class="accent-rose-500">
+                    <div class="ticks mt-1"><span>0°C</span><span>10°C</span><span>20°C</span><span>30°C</span><span>40°C</span><span>50°C</span></div>
                 </div>
                 
                 <div class="slider-group">
                     <label class="text-[13px] font-bold text-slate-600 mb-0">酸鹼值: <b class="text-blue-600">pH <span id="phVal">7.0</span></b></label>
                     <input type="range" id="ph" min="0" max="14" step="0.1" value="7" class="accent-blue-500">
-                    <div class="ticks mt-1"><span>0(酸)</span><span>7(中)</span><span>14(鹼)</span></div>
+                    <div class="ticks mt-1"><span>0(酸)</span><span class="opacity-0">.</span><span>7(中)</span><span class="opacity-0">.</span><span>14(鹼)</span></div>
                 </div>
             </div>
         </div>
 
-        <div class="flex-1 flex flex-col items-center justify-start bg-slate-200/50 rounded-2xl shadow-inner border border-slate-200 relative overflow-hidden p-2 pt-3">
+        <div class="flex-1 flex flex-col items-center justify-start bg-slate-200/50 rounded-2xl shadow-inner border border-slate-200 relative overflow-hidden p-2 pt-4">
             
-            <button id="btnPlay" class="mb-2 w-64 py-2 bg-emerald-500 text-white font-black rounded-full hover:bg-emerald-600 transition shadow-lg tracking-widest text-base border-[3px] border-white z-10 flex-none">
-                ▶ 開始反應
-            </button>
+            <div class="w-[340px] flex gap-3 mb-4 z-10 flex-none">
+                <button id="btnPlay" class="flex-1 py-2 bg-emerald-500 text-white font-black rounded-lg hover:bg-emerald-600 transition shadow-md tracking-widest text-sm border-2 border-emerald-600">
+                    ▶ 開始反應
+                </button>
+                <button id="btnResetAll" onclick="location.reload()" class="flex-1 py-2 bg-slate-100 text-slate-600 font-black rounded-lg hover:bg-slate-200 transition shadow-sm tracking-widest text-sm border-2 border-slate-300">
+                    🔄 重置實驗
+                </button>
+            </div>
 
             <div id="beaker-wrapper" class="flex-none mt-0">
                 <div id="beaker"></div>
                 <div class="beaker-lines">
+                    <div>500 ml<div class="line-mark"></div></div>
                     <div>400 ml<div class="line-mark"></div></div>
                     <div>300 ml<div class="line-mark"></div></div>
                     <div>200 ml<div class="line-mark"></div></div>
@@ -201,7 +140,7 @@
             
             <div class="flex-1 flex flex-col w-full min-h-0 bg-slate-50 rounded-xl p-2 border border-slate-100 shadow-inner">
                 <div class="flex justify-between items-center px-1 pb-1 border-b border-slate-200 mb-1 flex-none">
-                    <span class="text-[12px] font-black text-slate-700">📦 受質數量 (個)</span>
+                    <span class="text-[12px] font-black text-slate-700">📦 受質數量</span>
                     <div class="flex gap-1.5 text-[10px] font-bold">
                         <span class="leg-item transition-all" data-id="starch" style="color:#EF4444">■ 澱粉</span>
                         <span class="leg-item transition-all" data-id="protein" style="color:#3B82F6">■ 蛋白質</span>
@@ -216,7 +155,7 @@
 
             <div class="flex-1 flex flex-col w-full min-h-0 bg-slate-50 rounded-xl p-2 border border-slate-100 shadow-inner">
                 <div class="flex justify-between items-center px-1 pb-1 border-b border-slate-200 mb-1 flex-none">
-                    <span class="text-[12px] font-black text-slate-700">✨ 產物數量 (個)</span>
+                    <span class="text-[12px] font-black text-slate-700">✨ 產物數量</span>
                     <div class="flex gap-1.5 text-[10px] font-bold">
                         <span class="leg-item transition-all" data-id="sugar" style="color:#22C55E">■ 多醣</span>
                         <span class="leg-item transition-all" data-id="aa" style="color:#A855F7">■ 胺基酸</span>
@@ -254,11 +193,13 @@
         }, {passive: false});
 
         const beaker = document.getElementById('beaker');
-        const beakerWrapper = document.getElementById('beaker-wrapper');
-        const bWidth = 340, bHeight = 460;
+        const btnPlay = document.getElementById('btnPlay');
+        const bWidth = 340, bHeight = 560;
         let particles = [];
-        let playing = false, time = 0, active = true;
-        const maxTime = 400;
+        let playing = false, time = 0;
+        
+        // 回歸 400 點高頻率更新機制，保持動畫順暢度
+        const maxTime = 400; 
 
         let dataStore = {
             sub: { starch: 1000, protein: 1000, ammonia: 1000 },
@@ -272,76 +213,125 @@
             liver: { denatured: false }
         };
 
-        const matchMatrix = {
-            saliva: { targets: ['starch'], prodType: 'sugar', label: '多醣' },
-            pepsin: { targets: ['protein'], prodType: 'aa', label: '胺基酸' },
-            liver: { targets: ['ammonia'], prodType: 'urea', label: '尿素' }
-        };
-
         const checkboxes = document.querySelectorAll('.setup-cb');
         checkboxes.forEach(cb => {
             cb.addEventListener('change', () => {
-                let checkedCount = document.querySelectorAll('.setup-cb:checked').length;
-                if (checkedCount > 4) {
+                let type = cb.getAttribute('data-type');
+                let subCount = document.querySelectorAll('.setup-cb[data-type="substrate"]:checked').length;
+                let enzCount = document.querySelectorAll('.setup-cb[data-type="enzyme"]:checked').length;
+                
+                if (type === 'substrate' && subCount > 2) {
                     cb.checked = false;
-                    alert("為了防止大腦認知超載，最多只能同時選擇 4 個物件放入燒杯！");
+                    alert("為了避免畫面資訊過載，受質最多只能選擇 2 個喔！");
                     return;
                 }
-                if (!playing) initBeakerFromCheckboxes();
+                if (type === 'enzyme' && enzCount > 2) {
+                    cb.checked = false;
+                    alert("為了避免畫面資訊過載，酵素最多只能選擇 2 個喔！");
+                    return;
+                }
+                if (!playing && time === 0) initBeakerFromCheckboxes();
             });
         });
 
         function initBeakerFromCheckboxes() {
             beaker.innerHTML = '';
             particles = [];
-            document.querySelectorAll('.setup-cb:checked').forEach(cb => {
-                let type = cb.getAttribute('data-type');
+            
+            document.querySelectorAll('.setup-cb[data-type="substrate"]:checked').forEach(cb => {
                 let name = cb.getAttribute('data-name');
                 let label = cb.getAttribute('data-label');
-                let count = type === 'enzyme' ? 3 : 6;
-                for (let i = 0; i < count; i++) {
-                    spawnParticle(type, name, label);
+                // 加入 index 與 total，供依序淡出邏輯使用
+                for (let i = 0; i < 6; i++) spawnParticle('substrate', name, label, i, 6);
+                
+                let prodMap = { starch: {p:'sugar', l:'多醣'}, protein: {p:'aa', l:'胺基酸'}, ammonia: {p:'urea', l:'尿素'} };
+                let prod = prodMap[name];
+                for (let i = 0; i < 6; i++) {
+                    let p = spawnParticle('product', prod.p, prod.l, i, 6);
+                    p.el.style.opacity = 0;
                 }
             });
+
+            document.querySelectorAll('.setup-cb[data-type="enzyme"]:checked').forEach(cb => {
+                let name = cb.getAttribute('data-name');
+                let label = cb.getAttribute('data-label');
+                for (let i = 0; i < 3; i++) spawnParticle('enzyme', name, label, i, 3);
+            });
+            
             updateChartVisibility();
         }
 
-        function spawnParticle(type, name, label) {
+        function spawnParticle(type, name, label, pIndex = 0, pTotal = 1) {
             const el = document.createElement('div');
             let classMap = { saliva:'enz-saliva', pepsin:'enz-pepsin', liver:'enz-liver', starch:'sub-starch', protein:'sub-protein', ammonia:'sub-ammonia', sugar:'prod-sugar', aa:'prod-aa', urea:'prod-urea' };
             el.className = `particle ${type} ${classMap[name] || ''}`;
             el.innerText = label;
             
-            let size = type === 'enzyme' ? 50 : (type === 'substrate' ? 45 : 35);
+            let size = type === 'enzyme' ? 50 : (type === 'substrate' ? 45 : (name === 'urea' ? 55 : 28));
             let x = Math.random() * (bWidth - size - 30) + 15;
             let y = Math.random() * (bHeight - size - 60) + 40;
             el.style.left = x + 'px'; el.style.top = y + 'px';
             beaker.appendChild(el);
             
-            particles.push({ el, type, name, x, y, size, vx: (Math.random()-0.5)*2, vy: (Math.random()-0.5)*2, cooldown: 0 });
+            // 寫入粒子的索引與總數
+            let pObj = { el, type, name, x, y, size, vx: (Math.random()-0.5)*2, vy: (Math.random()-0.5)*2, pIndex, pTotal };
+            particles.push(pObj);
+            return pObj;
         }
 
-        // 移除 left 負邊距，讓 Chart.js 自動推算 Y 軸標籤空間
-        const createMultiChart = (id, datasetsConfig, maxVal) => new Chart(document.getElementById(id).getContext('2d'), {
+        const createMultiChart = (id, datasetsConfig, maxVal, minVal, hideY, yStep) => new Chart(document.getElementById(id).getContext('2d'), {
             type: 'line',
             data: {
                 labels: Array.from({length: maxTime}, (_, i) => i),
-                datasets: datasetsConfig.map(cfg => ({ label: cfg.label, data: Array(maxTime).fill(null), borderColor: cfg.color, borderWidth: 2.5, pointRadius: 0, fill: false, hidden: true, tension: 0.2, spanGaps: true }))
+                datasets: datasetsConfig.map(cfg => ({ 
+                    label: cfg.label, data: Array(maxTime).fill(null), borderColor: cfg.color, 
+                    borderWidth: 3.5, pointRadius: 0, fill: false, hidden: true, 
+                    tension: 0, /* 關閉平滑，確保數學率變化能瞬間反應出尖銳折角 */
+                    spanGaps: true 
+                }))
             },
             options: {
                 responsive: true, maintainAspectRatio: false, animation: false,
-                plugins: { legend: { display: false }, title: { display: false } },
+                plugins: { 
+                    legend: { display: false }, title: { display: false },
+                    tooltip: { 
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                let val = context.parsed.y;
+                                if(label === '蛋白質') val -= 15;
+                                if(label === '氨') val -= 30;
+                                if(label === '胺基酸') val -= 30;
+                                if(label === '尿素') val -= 60;
+                                if(label === '胃液活性') val -= 0.5;
+                                if(label === '肝酶活性') val -= 1;
+                                return `${label}: ${Math.max(0, Math.round(val))}`;
+                            }
+                        }
+                    }
+                },
                 scales: { 
-                    x: { ticks: { maxTicksLimit: 11, callback: v => (v / 20).toFixed(0), font: { size: 9 }, padding: 1 }, title: { display: false } }, 
-                    y: { min: 0, max: maxVal, ticks: { font: { size: 9 }, padding: 3 }, border: { display: false } } 
+                    x: { 
+                        grid: { color: '#f1f5f9' },
+                        ticks: { 
+                            autoSkip: false, maxRotation: 0, 
+                            callback: function(val, index) { return index % 40 === 0 ? (index / 20).toString() : ''; }, 
+                            font: { size: 9 }, padding: 1, color: '#64748b' 
+                        }, 
+                        title: { display: false } 
+                    }, 
+                    y: { 
+                        min: minVal, max: maxVal, grid: { color: '#f1f5f9' },
+                        ticks: { display: !hideY, font: { size: 9 }, padding: 3, color: '#64748b', stepSize: yStep }, border: { display: false } 
+                    } 
                 },
                 layout: { padding: { left: 5, right: 10, top: 5, bottom: 5 } } 
             }
         });
 
-        const cS = createMultiChart('chartS', [{label:'澱粉', color:'#EF4444'}, {label:'蛋白質', color:'#3B82F6'}, {label:'氨', color:'#06B6D4'}], 1000);
-        const cP = createMultiChart('chartP', [{label:'多醣', color:'#22C55E'}, {label:'胺基酸', color:'#A855F7'}, {label:'尿素', color:'#14B8A6'}], 2000);
-        const cA = createMultiChart('chartA', [{label:'唾液活性', color:'#15803D'}, {label:'胃液活性', color:'#6B21A8'}, {label:'肝酶活性', color:'#115E59'}], 120);
+        const cS = createMultiChart('chartS', [{label:'澱粉', color:'#EF4444'}, {label:'蛋白質', color:'#3B82F6'}, {label:'氨', color:'#06B6D4'}], 1050, -30, true);
+        const cP = createMultiChart('chartP', [{label:'多醣', color:'#22C55E'}, {label:'胺基酸', color:'#A855F7'}, {label:'尿素', color:'#14B8A6'}], 2100, -60, true);
+        const cA = createMultiChart('chartA', [{label:'唾液活性', color:'#15803D'}, {label:'胃液活性', color:'#6B21A8'}, {label:'肝酶活性', color:'#115E59'}], 100, 0, false, 20);
 
         function updateChartVisibility() {
             let activeSelectors = Array.from(document.querySelectorAll('.setup-cb:checked')).map(cb => cb.getAttribute('data-name'));
@@ -360,11 +350,8 @@
                     isVisible = activeSelectors.includes('ammonia') || activeSelectors.includes('liver');
                 }
                 
-                if (isVisible) {
-                    el.classList.remove('line-through', 'opacity-30', 'grayscale');
-                } else {
-                    el.classList.add('line-through', 'opacity-30', 'grayscale');
-                }
+                if (isVisible) el.classList.remove('line-through', 'opacity-30', 'grayscale');
+                else el.classList.add('line-through', 'opacity-30', 'grayscale');
             });
 
             cS.data.datasets[0].hidden = !activeSelectors.includes('starch');
@@ -400,74 +387,105 @@
         document.getElementById('temp').oninput = updateUIFeedback;
         document.getElementById('ph').oninput = updateUIFeedback;
         
-        document.getElementById('btnPlay').onclick = () => {
+        function togglePlay() {
             let checkedCount = document.querySelectorAll('.setup-cb:checked').length;
             if(checkedCount === 0) { alert("請至少勾選一項受質或酵素再開始！"); return; }
             playing = !playing;
             if (playing) {
                 updateChartVisibility();
-                document.getElementById('btnPlay').innerText = "⏸ 暫停反應";
-                document.getElementById('btnPlay').classList.replace('bg-emerald-500', 'bg-amber-500');
-                document.getElementById('btnPlay').classList.replace('hover:bg-emerald-600', 'hover:bg-amber-600');
+                btnPlay.innerText = "⏸ 暫停反應";
+                btnPlay.classList.replace('bg-emerald-500', 'bg-amber-500');
+                btnPlay.classList.replace('hover:bg-emerald-600', 'hover:bg-amber-600');
             } else {
-                document.getElementById('btnPlay').innerText = "▶ 繼續反應";
-                document.getElementById('btnPlay').classList.replace('bg-amber-500', 'bg-emerald-500');
-                document.getElementById('btnPlay').classList.replace('hover:bg-amber-600', 'hover:bg-emerald-600');
+                btnPlay.innerText = "▶ 繼續反應";
+                btnPlay.classList.replace('bg-amber-500', 'bg-emerald-500');
+                btnPlay.classList.replace('hover:bg-amber-600', 'hover:bg-emerald-600');
             }
-        };
+        }
+        btnPlay.onclick = togglePlay;
+
+        function replayExperiment() {
+            time = 0;
+            dataStore = { sub: { starch: 1000, protein: 1000, ammonia: 1000 }, prod: { sugar: 0, aa: 0, urea: 0 }, act: { saliva: 0, pepsin: 0, liver: 0 } };
+            lockStates = { saliva: { denatured: false }, pepsin: { denatured: false }, liver: { denatured: false } };
+            
+            cS.data.datasets.forEach(ds => ds.data.fill(null));
+            cP.data.datasets.forEach(ds => ds.data.fill(null));
+            cA.data.datasets.forEach(ds => ds.data.fill(null));
+            cS.update(); cP.update(); cA.update();
+
+            initBeakerFromCheckboxes();
+            updateUIFeedback();
+            
+            playing = true;
+            btnPlay.className = "flex-1 py-2 bg-amber-500 text-white font-black rounded-lg hover:bg-amber-600 transition shadow-md tracking-widest text-sm border-2 border-amber-600";
+            btnPlay.innerText = "⏸ 暫停反應";
+            btnPlay.onclick = togglePlay;
+        }
 
         function moveParticles() {
+            // 實作「透明度閘門碰撞」
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    let p1 = particles[i], p2 = particles[j];
+                    let op1 = parseFloat(p1.el.style.opacity) || 1;
+                    let op2 = parseFloat(p2.el.style.opacity) || 1;
+                    
+                    if (op1 > 0.1 && op2 > 0.1) {
+                        let dx = p1.x - p2.x;
+                        let dy = p1.y - p2.y;
+                        let dist = Math.sqrt(dx*dx + dy*dy);
+                        let minDist = (p1.size + p2.size) / 2;
+                        
+                        if (dist < minDist) {
+                            let angle = Math.atan2(dy, dx);
+                            let v1 = Math.sqrt(p1.vx*p1.vx + p1.vy*p1.vy);
+                            let v2 = Math.sqrt(p2.vx*p2.vx + p2.vy*p2.vy);
+                            
+                            p1.vx = Math.cos(angle) * v2;
+                            p1.vy = Math.sin(angle) * v2;
+                            p2.vx = Math.cos(angle + Math.PI) * v1;
+                            p2.vy = Math.sin(angle + Math.PI) * v1;
+                            
+                            let overlap = minDist - dist;
+                            p1.x += Math.cos(angle) * (overlap / 2 + 0.5);
+                            p1.y += Math.sin(angle) * (overlap / 2 + 0.5);
+                            p2.x -= Math.cos(angle) * (overlap / 2 + 0.5);
+                            p2.y -= Math.sin(angle) * (overlap / 2 + 0.5);
+                        }
+                    }
+                }
+            }
+
             particles.forEach(p => {
-                if (p.cooldown > 0) p.cooldown--;
                 p.x += p.vx; p.y += p.vy;
                 if (p.x <= 5 || p.x >= bWidth - p.size - 5) p.vx *= -1;
                 if (p.y <= 35 || p.y >= bHeight - p.size - 12) p.vy *= -1;
                 p.x = Math.max(5, Math.min(bWidth - p.size - 5, p.x));
                 p.y = Math.max(35, Math.min(bHeight - p.size - 12, p.y));
                 p.el.style.left = p.x + 'px'; p.el.style.top = p.y + 'px';
-            });
 
-            for (let i = 0; i < particles.length; i++) {
-                for (let j = i + 1; j < particles.length; j++) {
-                    let p1 = particles[i]; let p2 = particles[j];
-                    if (((p1.type === 'enzyme' && p2.type === 'substrate') || (p1.type === 'substrate' && p2.type === 'enzyme')) && p1.cooldown === 0 && p2.cooldown === 0) {
-                        let enz = p1.type === 'enzyme' ? p1 : p2;
-                        let subObj = p1.type === 'substrate' ? p1 : p2;
-                        let config = matchMatrix[enz.name];
-                        if (config && config.targets.includes(subObj.name) && dataStore.act[enz.name] > 0) {
-                            let dx = (p1.x + p1.size/2) - (p2.x + p2.size/2);
-                            let dy = (p1.y + p1.size/2) - (p2.y + p2.size/2);
-                            if (Math.sqrt(dx * dx + dy * dy) < (p1.size + p2.size) / 2) {
-                                subObj.el.remove();
-                                particles = particles.filter(p => p !== subObj);
-                                
-                                // 學理修正：尿素為 1:1 合成反應，其餘分解為 1:2
-                                spawnProduct(subObj.x, subObj.y, config.prodType, config.label);
-                                if (config.prodType !== 'urea') {
-                                    spawnProduct(subObj.x + 15, subObj.y + 15, config.prodType, config.label);
-                                }
-                                
-                                enz.cooldown = 30;
-                                enz.el.style.transform = "scale(1.15)";
-                                setTimeout(() => { if(enz.el) enz.el.style.transform = "scale(1)"; }, 200);
-                                break;
-                            }
-                        }
-                    }
+                // 核心邏輯修正：量子化分段依序淡出 / 淡入
+                if (p.type === 'substrate') {
+                    let globalRatio = dataStore.sub[p.name] / 1000;
+                    let upperThreshold = (p.pIndex + 1) / p.pTotal;
+                    let lowerThreshold = p.pIndex / p.pTotal;
+                    
+                    if (globalRatio >= upperThreshold) p.el.style.opacity = 1;
+                    else if (globalRatio <= lowerThreshold) p.el.style.opacity = 0;
+                    else p.el.style.opacity = (globalRatio - lowerThreshold) / (upperThreshold - lowerThreshold);
+                    
+                } else if (p.type === 'product') {
+                    let maxVal = (p.name === 'urea') ? 1000 : 2000;
+                    let globalRatio = dataStore.prod[p.name] / maxVal;
+                    let upperThreshold = (p.pIndex + 1) / p.pTotal;
+                    let lowerThreshold = p.pIndex / p.pTotal;
+                    
+                    if (globalRatio >= upperThreshold) p.el.style.opacity = 1;
+                    else if (globalRatio <= lowerThreshold) p.el.style.opacity = 0;
+                    else p.el.style.opacity = (globalRatio - lowerThreshold) / (upperThreshold - lowerThreshold);
                 }
-            }
-        }
-
-        function spawnProduct(x, y, name, label) {
-            const el = document.createElement('div');
-            let classMap = { sugar: 'prod-sugar', aa: 'prod-aa', urea: 'prod-urea' };
-            el.className = `particle product ${classMap[name]}`;
-            el.innerText = label;
-            el.style.left = x + 'px'; el.style.top = y + 'px';
-            beaker.appendChild(el);
-            
-            let pSize = (name === 'urea') ? 55 : 28;
-            particles.push({ el, type: 'product', name, x, y, size: pSize, vx: (Math.random()-0.5)*3, vy: (Math.random()-0.5)*3, cooldown: 0 });
+            });
         }
 
         function tick() {
@@ -478,9 +496,7 @@
                 if (t >= 50) {
                     ['saliva', 'pepsin', 'liver'].forEach(key => lockStates[key].denatured = true);
                     document.querySelectorAll('.enzyme').forEach(e => {
-                        e.style.backgroundColor = '#94a3b8';
-                        e.style.borderColor = '#94a3b8';
-                        e.style.boxShadow = 'none';
+                        e.style.backgroundColor = '#94a3b8'; e.style.borderColor = '#94a3b8'; e.style.boxShadow = 'none';
                     }); 
                     beaker.style.backgroundColor = '#e2e8f0'; 
                 }
@@ -489,36 +505,36 @@
                     if(!lockStates.saliva.denatured) { lockStates.saliva.denatured = true; document.querySelectorAll('.enz-saliva').forEach(e => { e.style.backgroundColor = '#94a3b8'; e.style.borderColor = '#94a3b8'; e.style.boxShadow = 'none'; }); }
                     if(!lockStates.liver.denatured) { lockStates.liver.denatured = true; document.querySelectorAll('.enz-liver').forEach(e => { e.style.backgroundColor = '#94a3b8'; e.style.borderColor = '#94a3b8'; e.style.boxShadow = 'none'; }); }
                 }
-                if (p >= 11.0) {
+                if (p >= 8.0) {
                     if(!lockStates.pepsin.denatured) { lockStates.pepsin.denatured = true; document.querySelectorAll('.enz-pepsin').forEach(e => { e.style.backgroundColor = '#94a3b8'; e.style.borderColor = '#94a3b8'; e.style.boxShadow = 'none'; }); }
                 }
 
-                if (!lockStates.saliva.denatured) { dataStore.act.saliva = Math.max(0, 120 * Math.exp(-Math.pow(t - 42, 2) / 300) * Math.exp(-Math.pow(p - 7.0, 2) / 4)); } else { dataStore.act.saliva = 0; }
-                if (!lockStates.pepsin.denatured) { dataStore.act.pepsin = Math.max(0, 120 * Math.exp(-Math.pow(t - 42, 2) / 300) * Math.exp(-Math.pow(p - 2.0, 2) / 2.5)); } else { dataStore.act.pepsin = 0; }
-                if (!lockStates.liver.denatured) { dataStore.act.liver  = Math.max(0, 120 * Math.exp(-Math.pow(t - 42, 2) / 300) * Math.exp(-Math.pow(p - 7.4, 2) / 4)); } else { dataStore.act.liver = 0; }
+                if (!lockStates.saliva.denatured) { dataStore.act.saliva = 100 * Math.exp(-Math.pow(t - 40, 2) / 45) * Math.exp(-Math.pow(p - 6.8, 2) / 2); } else { dataStore.act.saliva = 0; }
+                if (!lockStates.pepsin.denatured) { dataStore.act.pepsin = 100 * Math.exp(-Math.pow(t - 40, 2) / 45) * Math.exp(-Math.pow(p - 2.0, 2) / 1.5); } else { dataStore.act.pepsin = 0; }
+                if (!lockStates.liver.denatured) { dataStore.act.liver  = 100 * Math.exp(-Math.pow(t - 40, 2) / 45) * Math.exp(-Math.pow(p - 7.4, 2) / 2); } else { dataStore.act.liver = 0; }
 
                 let selectors = Array.from(document.querySelectorAll('.setup-cb:checked')).map(cb => cb.getAttribute('data-name'));
-                
-                // 學理修正：依據 1:1 或 1:2 調整數據增長
+                let baseRate = 4.167; 
+
                 if (selectors.includes('starch') && selectors.includes('saliva')) {
-                    let rate = dataStore.act.saliva * 0.025;
+                    let rate = (dataStore.act.saliva / 100) * baseRate;
                     if(dataStore.sub.starch > 0) { 
                         let actual = Math.min(rate, dataStore.sub.starch);
                         dataStore.sub.starch -= actual; dataStore.prod.sugar += actual * 2; 
                     }
                 }
                 if (selectors.includes('protein') && selectors.includes('pepsin')) {
-                    let rate = dataStore.act.pepsin * 0.025;
+                    let rate = (dataStore.act.pepsin / 100) * baseRate;
                     if(dataStore.sub.protein > 0) { 
                         let actual = Math.min(rate, dataStore.sub.protein);
                         dataStore.sub.protein -= actual; dataStore.prod.aa += actual * 2; 
                     }
                 }
                 if (selectors.includes('ammonia') && selectors.includes('liver')) {
-                    let rate = dataStore.act.liver * 0.025;
+                    let rate = (dataStore.act.liver / 100) * baseRate;
                     if(dataStore.sub.ammonia > 0) { 
                         let actual = Math.min(rate, dataStore.sub.ammonia);
-                        dataStore.sub.ammonia -= actual; dataStore.prod.urea += actual; // 1:1 數量同步
+                        dataStore.sub.ammonia -= actual; dataStore.prod.urea += actual; 
                     }
                 }
 
@@ -529,28 +545,28 @@
 
                 moveParticles();
 
+                // 恢復 400 點高頻率寫入，配合 tension: 0 產生動畫平滑推進且瞬間折角的視覺效果
                 cS.data.datasets[0].data[time] = dataStore.sub.starch;
-                cS.data.datasets[1].data[time] = dataStore.sub.protein;
-                cS.data.datasets[2].data[time] = dataStore.sub.ammonia;
+                cS.data.datasets[1].data[time] = dataStore.sub.protein + 15;
+                cS.data.datasets[2].data[time] = dataStore.sub.ammonia + 30;
 
                 cP.data.datasets[0].data[time] = dataStore.prod.sugar;
-                cP.data.datasets[1].data[time] = dataStore.prod.aa;
-                cP.data.datasets[2].data[time] = dataStore.prod.urea;
+                cP.data.datasets[1].data[time] = dataStore.prod.aa + 30;
+                cP.data.datasets[2].data[time] = dataStore.prod.urea + 60;
 
                 cA.data.datasets[0].data[time] = dataStore.act.saliva;
-                cA.data.datasets[1].data[time] = dataStore.act.pepsin;
-                cA.data.datasets[2].data[time] = dataStore.act.liver;
+                cA.data.datasets[1].data[time] = dataStore.act.pepsin + 0.5;
+                cA.data.datasets[2].data[time] = dataStore.act.liver + 1.0;
 
                 cS.update(); cP.update(); cA.update();
                 time++;
                 
                 if(time >= maxTime) {
                     playing = false;
-                    let btn = document.getElementById('btnPlay');
-                    btn.innerText = "🔄 重置實驗";
-                    btn.classList.remove('bg-emerald-500', 'bg-amber-500', 'hover:bg-emerald-600', 'hover:bg-amber-600');
-                    btn.className = "mb-2 w-64 py-2 bg-blue-500 text-white font-black rounded-full hover:bg-blue-600 transition shadow-lg tracking-widest text-base border-[3px] border-white z-10 flex-none animate-pulse";
-                    btn.onclick = () => location.reload();
+                    btnPlay.innerText = "🔄 再來一次";
+                    btnPlay.classList.remove('bg-emerald-500', 'bg-amber-500', 'hover:bg-emerald-600', 'hover:bg-amber-600');
+                    btnPlay.className = "flex-1 py-2 bg-blue-500 text-white font-black rounded-lg hover:bg-blue-600 transition shadow-md tracking-widest text-sm border-2 border-blue-600 animate-pulse";
+                    btnPlay.onclick = replayExperiment;
                 }
             }
         }
